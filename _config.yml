@@ -1,11 +1,10 @@
 # Basic
 title: 枫的技术博客
 subtitle: 荣辱不惊，闲看庭前花开花落
-//welcome_message: <a href="https://github.com/onevcat/vno-jekyll" target="_blank">Download the theme</a>
+welcome_message: <a href="" target="_blank">每一次相遇都值得珍惜 ^_^</a>
 description: 嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！
 creator: <a href="https://github.com/ShunzhiTang">@tangfeng</a>
 
-// http://vno.onevcat.com
 url: "https://shunzhitang.github.io"
 
 permalink: /:year/:month/:title/
