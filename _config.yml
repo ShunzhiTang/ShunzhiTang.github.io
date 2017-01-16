@@ -1,6 +1,5 @@
 # Basic
-title: OneV's Den
-//title: TangFeng
+title: 枫
 subtitle: 荣辱不惊，闲看庭前花开花落
 welcome_message: <a href="https://shunzhitang.github.io" target="_blank">每一次相遇都值得珍惜 ^_^</a>
 description: 嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！
@@ -19,7 +18,7 @@ cover_color: red
 # The blog button should not be removed.
 blog_button:
     title: 博客
-    description: Visit blog
+    description: 访问博客
 
 # Navigation buttons in the front page.
 nav:
@@ -33,7 +32,7 @@ paginate_path: "page/:num/"
 
 # Comment
 comment:
-    disqus: vno-jekyll
+    disqus: Tangfeng
     # duoshuo:
 
 # Social
@@ -41,8 +40,8 @@ social:
     weibo: 5721825289
     github: ShunzhiTang
     twitter: tangfengdream
-  //  gplus: 107108267983477358170
-    mail: tangfengdream@gmail.com
+    //gplus: 107108267983477358170
+    //mail: tangfengdream@gmail.com
 
 # Google Analytics
 ga:
