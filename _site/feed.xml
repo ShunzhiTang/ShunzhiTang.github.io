@@ -5,90 +5,42 @@
     <description>嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</description>
     <link>https://shunzhitang.github.io/</link>
     <atom:link href="https://shunzhitang.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 16 Jan 2017 15:45:58 +0800</pubDate>
-    <lastBuildDate>Mon, 16 Jan 2017 15:45:58 +0800</lastBuildDate>
+    <pubDate>Wed, 18 Jan 2017 12:08:02 +0800</pubDate>
+    <lastBuildDate>Wed, 18 Jan 2017 12:08:02 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
-        <title>Hello World - Vno</title>
-        <description>&lt;h4 id=&quot;whats-this&quot;&gt;What’s this&lt;/h4&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/onevcat/vno-jekyll&quot;&gt;Vno Jekyll&lt;/a&gt; is a theme for &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll&lt;/a&gt;. It is a port of my Ghost theme &lt;a href=&quot;https://github.com/onevcat/vno&quot;&gt;vno&lt;/a&gt;, which is originally developed from &lt;a href=&quot;https://github.com/daleanthony/uno&quot;&gt;Dale Anthony’s Uno&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&quot;usage&quot;&gt;Usage&lt;/h4&gt;
-
-&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;$ git clone https://github.com/onevcat/vno-jekyll.git your_site
-$ cd your_site
-$ bundler install
-$ bundler exec jekyll serve
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Your site with &lt;code&gt;Vno Jekyll&lt;/code&gt; enabled should be accessible in http://127.0.0.1:4000.&lt;/p&gt;
-
-&lt;p&gt;For more information about Jekyll, please visit &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll’s site&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&quot;configuration&quot;&gt;Configuration&lt;/h4&gt;
-
-&lt;p&gt;All configuration could be done in &lt;code&gt;_config.yml&lt;/code&gt;. Remember you need to restart to serve the page when after changing the config file. Everything in the config file should be self-explanatory.&lt;/p&gt;
-
-&lt;h4 id=&quot;background-image-and-avatar&quot;&gt;Background image and avatar&lt;/h4&gt;
-
-&lt;p&gt;You could replace the background and avatar image in &lt;code&gt;assets/images&lt;/code&gt; folder to change them.&lt;/p&gt;
-
-&lt;h4 id=&quot;sites-using-vno&quot;&gt;Sites using Vno&lt;/h4&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;My blog&lt;/a&gt; is using &lt;code&gt;Vno Jekyll&lt;/code&gt; as well, you could see how it works in real. There are some other sites using the same theme. You can find them below:&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;Site Name&lt;/th&gt;
-      &lt;th&gt;URL&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;OneV’s Den&lt;/td&gt;
-      &lt;td&gt;http://onevcat.com&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;If you happen to be using this theme, welcome to &lt;a href=&quot;https://github.com/onevcat/vno-jekyll/pulls&quot;&gt;send me a pull request&lt;/a&gt; to add your site link here. :)&lt;/p&gt;
+        <title>2017新的开始</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;前前后后折腾了很多的博客，但是都感觉到最后没有了毅力和精力去打理，一直想自己搭建一个网站自己写属于自己的博客，但是都由于种种原因一直搁浅，在2017年来临之际，我决定自己要重新开始了，做过了三年的iOS开发，开发项目，写代码，很多的知识点都写在印象笔记或者别的地方，有时间找也找不到，新的开始，从这里起航…&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h4 id=&quot;license&quot;&gt;License&lt;/h4&gt;
+&lt;p&gt;2016年马上就要过年了，北漂的日子满满的一年半多了，这一年找到工作，上了班，正式的开始我的北漂生活，这一年有辛酸也有快乐，对于做技术的我来说北京确实是一个牛人居多的地方，这里的生活方式和环境时时刻刻改变着我的思想和行为。&lt;/p&gt;
 
-&lt;p&gt;Great thanks to &lt;a href=&quot;https://github.com/daleanthony&quot;&gt;Dale Anthony&lt;/a&gt; and his &lt;a href=&quot;https://github.com/daleanthony/uno&quot;&gt;Uno&lt;/a&gt;. Vno Jekyll is based on Uno, and contains a lot of modification on page layout, animation, font and some more things I can not remember. Vno Jekyll is followed with Uno and be licensed as &lt;a href=&quot;http://creativecommons.org/licenses/by/4.0/&quot;&gt;Creative Commons Attribution 4.0 International&lt;/a&gt;. See the link for more information.&lt;/p&gt;
+&lt;h4 id=&quot;section&quot;&gt;回顾来北京的日子&lt;/h4&gt;
+&lt;p&gt;2015年秋天辞掉深圳的工作，来到了北京，开始找工作，找了一周找到了一家相对心仪的工作，在这个公司一待就到现在，刚开始来的时间就是单挑项目，从刚开始的忐忑到最后的游刃有余，到现在的可以单独架构设计项目，这一年对于我来说是真正成长的一年，以前可以说就是一个只知道敲代码的码农，到现在的可以配合服务器前端以及iOS端独立开发的程序员，我觉得这一年是值得的，比较遗憾的是考了一次软考差了几分失败了，感觉心塞塞的！！！&lt;/p&gt;
+
+&lt;p&gt;这一年多来我研究过react-native，学习过swift，闲的时间还写过几句html5的代码，总体来说这一年对于我来说是不平凡的一年，也是很充实的一年，作为iOS程序员，我觉得除了学好OC之外也需要学习一些别的知识，比如数据结构，数据库以及现在一些主流的和iOS相关的编程语言，只有学习才能保持良好的竞争力，&lt;/p&gt;
+
+&lt;p&gt;工作和生活有苦涩也有欢乐，有迷茫也有期望。在北京的日子不止是年龄的增长更多的是心灵和知识的沉淀，在这样一个繁华而陌生的城市，我要努力做好自己，实现自己心中的理想！！！&lt;/p&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;完成的项目&lt;/h4&gt;
+
+&lt;p&gt;1、刚到公司接手独立项目（mobobox）巴西查号通讯工具类，在App Store可以下载。&lt;/p&gt;
+
+&lt;p&gt;2、独立开发(mobonus),巴西积分商城，在Appstore已上线，&lt;/p&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;新一年的展望&lt;/h4&gt;
+&lt;p&gt;2017新的一年，加油，重新起航！！！&lt;/p&gt;
+
+&lt;h4 id=&quot;section-3&quot;&gt;备注&lt;/h4&gt;
+&lt;p&gt;感谢&lt;a href=&quot;http://onevcat.com&quot;&gt;喵神的博客(OneV’s Den)&lt;/a&gt;提供的主题和源代码，这种大神的开源精神值得我们去学习!&lt;/p&gt;
 </description>
-        <pubDate>Tue, 16 Feb 2016 14:32:24 +0800</pubDate>
-        <link>https://shunzhitang.github.io/2016/02/hello-world-vno/</link>
-        <guid isPermaLink="true">https://shunzhitang.github.io/2016/02/hello-world-vno/</guid>
+        <pubDate>Fri, 30 Dec 2016 09:32:24 +0800</pubDate>
+        <link>https://shunzhitang.github.io/2016/12/my-frist-blog/</link>
+        <guid isPermaLink="true">https://shunzhitang.github.io/2016/12/my-frist-blog/</guid>
         
-        
-      </item>
-    
-      <item>
-        <title>Sample Post</title>
-        <description>&lt;p&gt;You’ll find this post in your &lt;code&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
-
-&lt;p&gt;To add new posts, simply add a file in the &lt;code&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
-
-&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;def print_hi(name)
-  puts &amp;quot;Hi, #{name}&amp;quot;
-end
-print_hi(&amp;#39;Tom&amp;#39;)
-#=&amp;gt; prints &amp;#39;Hi, Tom&amp;#39; to STDOUT.&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;
-
-</description>
-        <pubDate>Mon, 15 Feb 2016 14:32:24 +0800</pubDate>
-        <link>https://shunzhitang.github.io/2016/02/sample-post/</link>
-        <guid isPermaLink="true">https://shunzhitang.github.io/2016/02/sample-post/</guid>
+        <category>随记杂谈集</category>
         
         
       </item>
