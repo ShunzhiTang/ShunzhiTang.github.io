@@ -5,8 +5,8 @@
     <description>嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</description>
     <link>https://shunzhitang.github.io/</link>
     <atom:link href="https://shunzhitang.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 30 Apr 2017 20:15:51 +0800</pubDate>
-    <lastBuildDate>Sun, 30 Apr 2017 20:15:51 +0800</lastBuildDate>
+    <pubDate>Tue, 02 May 2017 19:26:33 +0800</pubDate>
+    <lastBuildDate>Tue, 02 May 2017 19:26:33 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -39,9 +39,9 @@
 
 &lt;p&gt;—热血犹在，我心依旧，不忘初心—&lt;/p&gt;
 </description>
-        <pubDate>Fri, 28 Apr 2017 11:32:24 +0800</pubDate>
-        <link>https://shunzhitang.github.io/2017/04/my-frist-blog/</link>
-        <guid isPermaLink="true">https://shunzhitang.github.io/2017/04/my-frist-blog/</guid>
+        <pubDate>Mon, 30 Jan 2017 11:32:24 +0800</pubDate>
+        <link>https://shunzhitang.github.io/2017/01/my-frist-blog/</link>
+        <guid isPermaLink="true">https://shunzhitang.github.io/2017/01/my-frist-blog/</guid>
         
         <category>随记杂谈集</category>
         
@@ -80,6 +80,169 @@
         <guid isPermaLink="true">https://shunzhitang.github.io/2016/12/my-frist-blog/</guid>
         
         <category>随记杂谈集</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>基础篇</title>
+        <description>&lt;h5 id=&quot;property&quot;&gt;一、property相关&lt;/h5&gt;
+&lt;p&gt;@property有哪些修饰符&lt;br /&gt;
+1、线程安全（原子性）&lt;br /&gt;
+  atomic 和 nonatomic&lt;/p&gt;
+&lt;p&gt;
+详解：&lt;br /&gt;
+atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。&lt;br /&gt;
+注意：&lt;br /&gt;
+1.atomic原子性指的是一个操作不可以被CPU中途暂停，然后再调度。即不能被中断，要么就执行完，要么就不执行。&lt;br /&gt;
+2.atomic是自旋锁，当上一线程没有执行完毕的时候（被锁住），下一个线程会一直等待（不会进入睡眠状态），当上衣线程任务执行完毕，下一线程立即执行。它区别于互斥锁，互斥锁在等待的时候，会进入睡眠状态，当被上一线程执行完毕后，会被唤醒，然后再执行。&lt;br /&gt;
+3.atomic只给setter方法上锁，getter不会加锁。&lt;br /&gt;
+4.atomic需要消耗大量的资源，执行效率低&lt;br /&gt;
+&lt;br /&gt;
+nonatomic (非原子性):非线程安全，多个线程可以同时对其进行访问，使用该属性会少生成加锁的代码，提高性能和效率，使用频率高，一般都是放弃安全，提高性能。
+&lt;/p&gt;
+&lt;p&gt;2、访问权限&lt;br /&gt;
+  readonly、readwrite&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;
+  详解：&lt;br /&gt;
+  readonly 只读属性、只会生成getter方法，不会生成setter方法&lt;br /&gt;
+  readwrite 默认，拥有getter/setter方法，可读可写
+ &lt;/p&gt;
+&lt;p&gt;3、内存管理&lt;br /&gt;
+  ARC: assign、strong、weak、copy（mutableCopy）、unsafe_unretained&lt;br /&gt;
+  MRC: assign、retain（release释放）&lt;br /&gt;
+  详解：&lt;br /&gt;
+1.assign 默认 : 适用于基本数据类型:NSInteger、CGFloat和C数据类型int、float 以及enum类型等&lt;br /&gt;
+2.strong对应MRC中的retain : 强引用，只有OC对象才能够使用该属性，它使对象的引用计数器加1&lt;br /&gt;
+3.weak : 弱引用，只是单纯引用某个对象，但是并未拥有该对象，即一个对象被持有无数个弱引用，只要没有strong引用指向它，那么它就会自动释放。&lt;br /&gt;
+4.copy(mutableCopy) : 如果想要创建一个对象，该对象与源对象的内容一致，那么就可以使用copy。&lt;br /&gt;
+copy和mutableCopy的区别：&lt;br /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;源对象是不可变类型或者可变类型&lt;br /&gt;
+1.copy出来的对象类型总是不可变类型（例如：NSString、NSArray，NSDictionary）&lt;br /&gt;
+2.mutableCopy出来的对象类型总是可变类型（例如：NSMutableString,NSMutableDictionary,NSMutaleArray）&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;深拷贝和浅拷贝：&lt;br /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;1.深拷贝：拷贝出来的对象与源对象地址不一致，这意味着我们改变拷贝对象的值对原来的值没有任何影响。&lt;br /&gt;
+2.浅拷贝：拷贝出来的对象与源地址一致，这意味着我修改拷贝对象的值会影响到源对象。&lt;br /&gt;
+注意：&lt;br /&gt;
+”copy都是浅拷贝，mutableCopy都是深拷贝“ 这句话是错误的，解释：当我们用copy从一个可变对象拷贝出一个不可变对象时，这种情况属于深拷贝而不是浅拷贝。&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;copy拓展： 深拷贝和浅拷贝有相对之分：&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;A、对于NSString 对象，深拷贝就是深拷贝，浅拷贝就是浅拷贝&lt;br /&gt;
+B、对于NSArray ，NSDictionary ，NSSet这些容器类的对象呢？当然浅拷贝依然是指针的拷贝，但是深拷贝要分为不完全深拷贝和完全深拷贝&lt;br /&gt;
+ 不完全深拷贝：不完全深拷贝就是只拷贝对象，而对于容器内的对象则只保存一份引用。&lt;br /&gt;
+ 完全深拷贝：就是连同容器的对象在内，完完全全拷贝一份&lt;br /&gt;
+ps： 默认状态下深拷贝指的是不完全深拷贝，如果要实现完全深拷贝，则要重写copyWithZone:方法&lt;br /&gt;
+如果要实现完全深拷贝可以利用容器（NSArray）的分类重写copyWithZone:方法，但是Apple官方不推荐这样做（copy内部默认调用copyWithZone:方法，但是NSArray不会调用这个方法，所以默认是不完全深拷贝）&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;block 为什么使用copy？&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;首先，block是一个对象，所以block理论上是可以使用retain/release，但是block在创建时它的内存是默认分配在栈（stack）上的，而不是堆（heap），当在作用域外调用该block时，MRC下就会奔溃，使用copy就能把他放在堆区，这样在作用域外调用这个block就不会crash。&lt;br /&gt;
+Apple官方文档：”Typically, you shouldn’t need to copy (or retain) a block. You only need to make a copy when you expect the block to be used after destruction of the scope within which it was declared. Copying moves a block to the heap.”一般情况下不需要自行调用copy或者retain修饰一个block，只有当需要在作用域外的地方使用时才需要copy，copy将block存内存区移到堆区。&lt;br /&gt;
+在ARC下修饰属性block&lt;br /&gt;
+1、使用weak或者assign修饰block，block访问外部变量，此block就是栈block，保存在栈中的block，当block所在的函数执行后，该bloc就会被销毁，在其他方法中访问该block就会产生野指针错误。&lt;br /&gt;
+2、copy、strong都可以修饰block，但是建议使用copy。block访问外部变量时此时block就是堆block。&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;扩展–Block存储类型&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;1、不管是ARC还是MRC环境下，block内部如果没有访问外部变量，这个block就是全局block &lt;strong&gt;NSGlobalBlock&lt;/strong&gt;,存储在全局区。&lt;br /&gt;
+2、在MRC下，block内部如果不访问外部变量，这个block是栈block &lt;strong&gt;NSStackBlock&lt;/strong&gt; ，存储在内存中的栈上。&lt;br /&gt;
+3、在MRC下，block内部访问外部变量，同时对该block做一次copy操作，这个block就是堆block &lt;strong&gt;NSMallocBlock&lt;/strong&gt;，存储在内存的堆上。
+4、在ARC下，block内部如果访问外部变量，这个block就是堆block，&lt;strong&gt;NSMallocBlock&lt;/strong&gt; ，存储在内存中的堆上，因为在ARC下，默认对block做一次copy操作。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/image/blockCopy.png&quot; alt=&quot;图片1&quot; title=&quot;block内存一览图&quot; /&gt;&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;关于copy 和strong&lt;br /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;NSString 、NSArray、NSDictionary常用copy，为什么不用strong？&lt;br /&gt;
+strong是一个强引用，指向的是一个内存地址，copy是内容拷贝，会另外开辟内存空间，指针指向一个不同的内存地址，copy返回的是一个不可变对象，如果使用strong修饰可变对象，那么对象就可能在不经意间修改，有时不是我们想要的，而copy就不会发生这种情况。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;5.unsafe_unretained : 和assign一样的作用 ， 同时也是一种弱引用的表示。&lt;br /&gt;
+weak 和unsafe_unretained的区别？&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;对于weak，指针的对象在它指向的对象释放的时候会转换为nil，并且会把所有引用过它的对象置为nil，消耗性能，这是一种安全的行为；但是unsafe_unretained 会继续指向对象存在的内存，即使在它已经销毁之后，这会导致因为访问那个已经释放对象而引起crash。&lt;br /&gt;
+为什么还要使用__unsafe_unretained？&lt;br /&gt;
+因为iOS4.0以前没有weak
+&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;4、指定方法名称
+  getter、setter&lt;br /&gt;
+方法指定： getter = XXX ,setter = XXX&lt;br /&gt;
+使用@property ,编译器会自动为我们添加getter和setter方法。&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;h5 id=&quot;section&quot;&gt;二、基础知识点&lt;/h5&gt;
+&lt;p&gt;&lt;strong&gt;1、ARC下，不显示指定属性关键字时，默认关键字有哪些？&lt;br /&gt;&lt;/strong&gt;
+1.基本数据类型： atomic , readwrite, assign&lt;br /&gt;
+2.普通OC对象 : atomic , readwrite , strong&lt;br /&gt;
+&lt;strong&gt;2、@property (copy) NSMutableArray *array; 这样写有什么问题？&lt;br /&gt;&lt;/strong&gt;
+ 1.因为NSMutableArray使用的是copy修饰关键字(copy出来的对象总是不可变类型)，外面不管传值为NSMutableArray或者NSArray对象，array都是NSArray类型，编译器还是会认为是NSMutableArray，但是调用addObject就会crash。&lt;br /&gt;
+ 2.使用了atomic属性严重影响性能。&lt;br /&gt;
+&lt;strong&gt;3、如何让自己的类用copy修饰符？如何重写带copy关键字的setter？&lt;br /&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;若想令自己所写的类具有拷贝功能，需要实现NSCopying协议；如果自定义的对象分为可变和不可变，那么同时实现NSCopying与NSMutableCopying协议。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;具体步骤：&lt;br /&gt;
+1.需声明该类遵从NSCopying协议&lt;br /&gt;
+2.实现NSCopying协议的协议方法&lt;br /&gt;
+&lt;code&gt;- (id)copyWithZone:(NSZone *)zone;&lt;/code&gt;&lt;br /&gt;
+重写copy关键字的setter&lt;br /&gt;
+&lt;code&gt;- (void)setName:(NSString *)name {&lt;/code&gt;&lt;br /&gt;
+    &lt;code&gt;_name = [name copy];&lt;/code&gt;&lt;br /&gt;
+&lt;code&gt;}&lt;/code&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4、@property的本质是什么？ivar、getter、setter是如何生成并添加这个类中的？&lt;br /&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt; property的本质是：&lt;code&gt;@property = ivar + getter + setter;&lt;/code&gt;&lt;br /&gt;
+解释如下：&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;属性（property）有两大概念 ： ivar (实例变量)、存取方法（access method）= getter + setter&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;ivar、getter、setter如何生成并添加到类中的？&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;“自动合成（autosynthesis）”&lt;br /&gt;
+完成属性定义后，编译器会自定编写访问这些属性所需的方法，此过程叫做“自定合成autosynthesis”，需要注意的是，这个过程由编译器在编译期执行，所以编辑器里看不到“合成方法（synthesis method）”的源码，除了生成getter、setter之外，编译器还要自动向类中添加适当类型的实例变量，并且在属性名前面加上下划线，一次作为实例变量名的名字。比如：_name , 也可以在类的实现代码里通过@synthesize 语法来指定实例变量的名字（@synthesize name = _myName）&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;反编译类实现如下：&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;1.OBJC_IVAR_$类名$属性名称 : 该属性的偏移量（offset），这个偏移量是硬编码，表示该变量距离存放对象的内存区域的起始地址有多远。&lt;br /&gt;
+2.setter 与 getter方法对应的实现函数&lt;br /&gt;
+3.ivar_list : 成员变量列表&lt;br /&gt;
+4.method_list: 方法列表&lt;br /&gt;
+5.prop_list : 属性列表&lt;br /&gt;
+总结：每次增加一个属性，系统都会在ivar_list中添加一个成员变量的描述，在method_list中增加getter和setter方法的描述，在属性列表中增加一个属性的描述，然后计算该属性在对象中的偏移量，然后给出getter和setter方法对应的实现，在setter方法中从偏移量的位置开始赋值，在getter方法中从偏移量的位置开始取值，为了能够读取正确的字节数，系统对偏移量的位置进行了类型强转。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;5、@protocol和category 中如何使用@property&lt;/strong&gt;&lt;br /&gt;
+1.在protocol中使用property只会生成getter和setter方法的声明，我们使用属性的目的是希望遵守我协议的对象能实现该属性.&lt;br /&gt;
+2.category使用@property也是只会生成setter和getter方法的声明，如果我们需要给category增加属性的实现，需要借助于运行下面两个函数&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;objc_setAssociatedObject&lt;/code&gt; &lt;br /&gt; &lt;code&gt;objc_getAssociatedObject&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+        <pubDate>Fri, 12 Feb 2016 18:32:24 +0800</pubDate>
+        <link>https://shunzhitang.github.io/2016/02/iOS-first-Notes/</link>
+        <guid isPermaLink="true">https://shunzhitang.github.io/2016/02/iOS-first-Notes/</guid>
+        
+        <category>Objective-C回顾温习集</category>
         
         
       </item>
