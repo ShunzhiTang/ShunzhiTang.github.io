@@ -6,16 +6,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <title>基础篇</title>
+  <title>基础篇-Property</title>
   <meta name="description" content="一、property相关@property有哪些修饰符1、线程安全（原子性）  atomic 和 nonatomic详解：atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。注意：1.atom...">
   <meta name="author" content="Wei Wang">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="基础篇">
+  <meta name="twitter:title" content="基础篇-Property">
   <meta name="twitter:description" content="一、property相关@property有哪些修饰符1、线程安全（原子性）  atomic 和 nonatomic详解：atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。注意：1.atom...">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="基础篇">
+  <meta property="og:title" content="基础篇-Property">
   <meta property="og:description" content="一、property相关@property有哪些修饰符1、线程安全（原子性）  atomic 和 nonatomic详解：atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。注意：1.atom...">
 
   <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
@@ -136,11 +136,11 @@
     <div class="post-meta">
       <time datetime="2016-02-12 18:32:24 +0800" itemprop="datePublished" class="post-meta__date date">2016-02-12</time> &#8226; <span class="post-meta__tags tags">Objective-C回顾温习集</span>
     </div>
-    <h1 class="post-title">基础篇</h1>
+    <h1 class="post-title">基础篇-Property</h1>
   </header>
 
   <section class="post">
-    <h5 id="property">一、property相关</h5>
+    <h3 id="property">一、property相关</h3>
 <p>@property有哪些修饰符<br />
 1、线程安全（原子性）<br />
   atomic 和 nonatomic</p>
@@ -240,7 +240,7 @@ weak 和unsafe_unretained的区别？</p>
 使用@property ,编译器会自动为我们添加getter和setter方法。</p>
 
 <hr />
-<h5 id="section">二、基础知识点</h5>
+<h3 id="section">二、基础知识点</h3>
 <p><strong>1、ARC下，不显示指定属性关键字时，默认关键字有哪些？<br /></strong>
 1.基本数据类型： atomic , readwrite, assign<br />
 2.普通OC对象 : atomic , readwrite , strong<br />
@@ -272,7 +272,7 @@ weak 和unsafe_unretained的区别？</p>
 <p>ivar、getter、setter如何生成并添加到类中的？</p>
 <blockquote>
   <p>“自动合成（autosynthesis）”<br />
-完成属性定义后，编译器会自定编写访问这些属性所需的方法，此过程叫做“自定合成autosynthesis”，需要注意的是，这个过程由编译器在编译期执行，所以编辑器里看不到“合成方法（synthesis method）”的源码，除了生成getter、setter之外，编译器还要自动向类中添加适当类型的实例变量，并且在属性名前面加上下划线，一次作为实例变量名的名字。比如：_name , 也可以在类的实现代码里通过@synthesize 语法来指定实例变量的名字（@synthesize name = _myName）</p>
+完成属性定义后，编译器会自定编写访问这些属性所需的方法，此过程叫做“自动合成autosynthesis”，需要注意的是，这个过程由编译器在编译期执行，所以编辑器里看不到“合成方法（synthesis method）”的源码，除了生成getter、setter之外，编译器还要自动向类中添加适当类型的实例变量，并且在属性名前面加上下划线，一次作为实例变量名的名字。比如：_name , 也可以在类的实现代码里通过@synthesize 语法来指定实例变量的名字（@synthesize name = _myName）</p>
 </blockquote>
 
 <p>反编译类实现如下：</p>
@@ -289,8 +289,68 @@ weak 和unsafe_unretained的区别？</p>
 1.在protocol中使用property只会生成getter和setter方法的声明，我们使用属性的目的是希望遵守我协议的对象能实现该属性.<br />
 2.category使用@property也是只会生成setter和getter方法的声明，如果我们需要给category增加属性的实现，需要借助于运行下面两个函数</p>
 <blockquote>
-  <p><code>objc_setAssociatedObject</code> <br /> <code>objc_getAssociatedObject</code></p>
+  <p><code>objc_setAssociatedObject</code> <br /> <code>objc_getAssociatedObject</code><br /></p>
 </blockquote>
+
+<p><strong>6、runtime 如何实现weak属性</strong><br />
+weak属性的特点：</p>
+<blockquote>
+  <p>weak此特征表明该属性定义了一种“非拥有关系”（nonowning relationship），为这种属性设置新值时，设置方法既不保留新值，也不释放旧值，此特质通assign类似，然而在属性所指的对象销毁时，属性也会被置为nil。</p>
+</blockquote>
+
+<p>runtime如何实现weak变量的自定置为nil?</p>
+<blockquote>
+  <p>runtime 对注册的类会进行布局，对于weak对象会放入一个hash表中，用weak指向的对象内存地址作为key，当此对象的引用计数器为0的时候会dealloc，假如weak指向对象的内存地址为a，那么就以a为键，在这个weak表中搜索，找到所有以a为键的weak对象，从而设置nil。</p>
+</blockquote>
+
+<p><strong>7、weak属性需要在dealloc中置为nil吗？</strong><br /></p>
+<blockquote>
+  <p>不需要<br />
+在ARC环境无论是强指针还是弱指针都不需要再dealloc设置为nil,ARC会自定帮我们处理</p>
+</blockquote>
+
+<p><strong>8、@synthesize和@dynamic分别有什么作用</strong><br />
+1.@property 有两个对应的词，一个是@synthesize，一个是@dynamic ,如果@synthesize和@dynamic都没写，默认就是@synthesize var = _var;<br />
+2.@synthesize的语义是如果你没有手抖实现setter方法和getter方法，那么编译器会自定的加上这两个方法.<br />
+3.@dynamic告诉编译器：属性的setter与getter方法由用户自己实现，（对于readonly只提供getter方法就可以了） ， 加入一个属性被声明为@dynamic var ,然后没有提供@getter和setter方法，那么程序在编译的时候没有问题，但是当程序运行到instance.var = someVar,由于缺少setter方法就会导致程序奔溃，或者在运行到someVar = var 时，由于没有提供getter方法同样会导致奔溃。编译的时间没有问题，运行时才执行对应的方法，这就是所谓的动态绑定。<br /></p>
+
+<p><strong>9、@synthesize合成实例变量的规则是什么？假如property名为foo，存在一个_foo的实例变量，那么还会自动合成新变量吗？</strong><br />
+首先明确概念:</p>
+<blockquote>
+  <p>实例变量 = 成员变量 = ivar</p>
+</blockquote>
+
+<p>总结下@synthesize合成实例变量的规则，如下：</p>
+<blockquote>
+
+  <p>1.如果指定了成员变量的名称，会生成一个指定的名称的成员变量。<br />
+2.如果这个成员已经存在就不会再生成。<br />
+3.如果是@synthesize foo; 还会生成一个名称为foo的成员变量，也就是说:
+如果没有指定成员变量的名称会自定生成一个属性同名的成员变量，<br />
+如果是@synthesize foo = _foo ，就不会再生成成员变量了。</p>
+</blockquote>
+
+<p>假如property名为foo，存在一个名为_foo的实例变量，那么还会自动合成新变量吗？</p>
+<blockquote>
+  <p>不会</p>
+</blockquote>
+
+<p><strong>10、在有了property自定合成属性变量之后，@synthesize还有哪些使用场景？</strong><br />
+回答这个问题的时间需要搞清楚，什么情况下不会autosynthesis(自动合成)?</p>
+<blockquote>
+  <p>1.同时重写了setter和getter时<br />
+2.重写了只读属性的getter时<br />
+3.使用了@dynamic时<br />
+4.在@protocol中定义的所有属性<br />
+5.在category中定义的所有属性<br />
+6.重载的属性<br />
+当你在子类中重载了父类中的属性，你必须使用@synthesize来手动合成ivar。</p>
+</blockquote>
+
+<p>总结： 如果需要使用ivar，但是autosynthesis 失效，如果不去手动定义ivar，那么就需要@synthesize来手动合成ivar。还有一个场景就是在类的实现代码中通过@synthesize语法指定实例变量的名字：  <code>@synthesize name = _myName</code>,但是这种场景不推荐使用。<br /></p>
+
+<hr />
+<p>参考资料：<a href="https://github.com/ChenYilong/iOSInterviewQuestions/blob/master/01%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88/%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88%EF%BC%88%E4%B8%8A%EF%BC%89.md#14-synthesize%E5%90%88%E6%88%90%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E7%9A%84%E8%A7%84%E5%88%99%E6%98%AF%E4%BB%80%E4%B9%88%E5%81%87%E5%A6%82property%E5%90%8D%E4%B8%BAfoo%E5%AD%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%90%8D%E4%B8%BA_foo%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E9%82%A3%E4%B9%88%E8%BF%98%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%90%88%E6%88%90%E6%96%B0%E5%8F%98%E9%87%8F%E4%B9%88">@iOS程序犭袁的Git分享</a></p>
 
   </section>
 </article>
@@ -340,7 +400,7 @@ weak 和unsafe_unretained的区别？</p>
             <section class="footer">
     <footer>
     	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
-        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2017-05-02 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
+        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2017-05-03 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
         <span class="footer__copyright">本站由 <a href="https://github.com/ShunzhiTang">@tangfeng</a> 创建，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题，您可以在 GitHub 找到<a href="https://github.com/onevcat/OneV-s-Den">本站源码</a> - &copy; 2017</span>
     </footer>
 </section>
