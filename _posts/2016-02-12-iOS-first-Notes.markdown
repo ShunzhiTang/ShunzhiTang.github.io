@@ -145,7 +145,7 @@ runtime如何实现weak变量的自定置为nil?
 
 **8、@synthesize和@dynamic分别有什么作用**<br>
 1.@property 有两个对应的词，一个是@synthesize，一个是@dynamic ,如果@synthesize和@dynamic都没写，默认就是@synthesize var = _var;<br>
-2.@synthesize的语义是如果你没有手抖实现setter方法和getter方法，那么编译器会自定的加上这两个方法.<br>
+2.@synthesize的语义是如果你没有手动实现setter方法和getter方法，那么编译器会自定的加上这两个方法.<br>
 3.@dynamic告诉编译器：属性的setter与getter方法由用户自己实现，（对于readonly只提供getter方法就可以了） ， 加入一个属性被声明为@dynamic var ,然后没有提供@getter和setter方法，那么程序在编译的时候没有问题，但是当程序运行到instance.var = someVar,由于缺少setter方法就会导致程序奔溃，或者在运行到someVar = var 时，由于没有提供getter方法同样会导致奔溃。编译的时间没有问题，运行时才执行对应的方法，这就是所谓的动态绑定。<br>
 
 **9、@synthesize合成实例变量的规则是什么？假如property名为foo，存在一个_foo的实例变量，那么还会自动合成新变量吗？**<br>

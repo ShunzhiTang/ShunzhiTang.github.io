@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <title>基础篇-Objc消息机制</title>
+  <meta name="description" content="  消息发送和转发流程可以概括为：消息发送（Messaging）是Runtime通过selector快速查找IMP的过程，有了函数指针就可以执行对应的方法实现，消息转发（Message Forwarding）是在查找IMP失败后执行一系列转发流程的慢速通道，如果不做转发处理则会打印日志或者抛出异常。深入理解原理查...">
+  <meta name="author" content="Wei Wang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="基础篇-Objc消息机制">
+  <meta name="twitter:description" content="  消息发送和转发流程可以概括为：消息发送（Messaging）是Runtime通过selector快速查找IMP的过程，有了函数指针就可以执行对应的方法实现，消息转发（Message Forwarding）是在查找IMP失败后执行一系列转发流程的慢速通道，如果不做转发处理则会打印日志或者抛出异常。深入理解原理查...">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="基础篇-Objc消息机制">
+  <meta property="og:description" content="  消息发送和转发流程可以概括为：消息发送（Messaging）是Runtime通过selector快速查找IMP的过程，有了函数指针就可以执行对应的方法实现，消息转发（Message Forwarding）是在查找IMP失败后执行一系列转发流程的慢速通道，如果不做转发处理则会打印日志或者抛出异常。深入理解原理查...">
+
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="https://shunzhitang.github.io/2016/04/iOS-method-Note/">
+  <link rel="alternate" type="application/rss+xml" title="枫" href="https://shunzhitang.github.io/feed.xml">
+
+  <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+
+</head>
+
+
+  <body>
+
+    <span class="mobile btn-mobile-menu">
+        <i class="fa fa-list btn-mobile-menu__icon"></i>
+        <i class="fa fa-angle-up btn-mobile-close__icon hidden"></i>
+    </span>
+    
+    <header class="panel-cover panel-cover--collapsed" style="background-image: url('/assets/images/background-cover.jpg')">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+
+        <a href="/#blog" title="前往 枫 的主页" class="blog-button"><img src="/assets/images/avatar.jpg" width="80" alt="枫 logo" class="panel-cover__logo logo" /></a>
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for 枫" class="blog-button">枫</a></h1>
+        
+        <span class="panel-cover__subtitle panel-subtitle">荣辱不惊，闲看庭前花开花落</span>
+        
+        <hr class="panel-cover__divider" />
+        <p class="panel-cover__description">嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" />
+        
+        
+        <p class="panel-cover__description"><a href="https://shunzhitang.github.io" target="_blank">每一次相遇都值得珍惜 ^_^</a></p>
+        
+        
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="访问博客" class="blog-button">博客</a></li>
+                
+                  <li class="navigation__item"><a href="https://shunzhitang.github.io" target="_blank" title="about">关于</a></li>
+                
+              </ul>
+            </nav>
+          </div>
+          
+          <div><nav class="cover-navigation navigation--social">
+  <ul class="navigation">
+
+  
+  <!-- Weibo -->
+  <li class="navigation__item">
+    <a href="http://weibo.com/5721825289" title="@5721825289 的微博" target="_blank">
+      <i class='social fa fa-weibo'></i>
+      <span class="label">Weibo</span>
+    </a>
+  </li>
+  
+
+  
+  <!-- Github -->
+  <li class="navigation__item">
+    <a href="https://github.com/ShunzhiTang" title="@ShunzhiTang 的 Github" target="_blank">
+      <i class='social fa fa-github'></i>
+      <span class="label">Github</span>
+    </a>
+  </li>
+  
+  
+  
+  <!-- Twitter -->
+  <li class="navigation__item">
+    <a href="http://twitter.com/tangfengdream" title="@tangfengdream" target="_blank">
+      <i class='social fa fa-twitter'></i>
+      <span class="label">Twitter</span>
+    </a>
+  </li>
+  
+
+  
+
+  <!-- RSS -->
+  <li class="navigation__item">
+    <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+      <i class='social fa fa-rss'></i>
+      <span class="label">RSS</span>
+    </a>
+  </li>
+
+  
+
+  </ul>
+</nav>
+</div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-slate"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="2016-04-08 21:12:24 +0800" itemprop="datePublished" class="post-meta__date date">2016-04-08</time> &#8226; <span class="post-meta__tags tags">Objective-C回顾温习集</span>
+    </div>
+    <h1 class="post-title">基础篇-Objc消息机制</h1>
+  </header>
+
+  <section class="post">
+    <blockquote>
+
+  <p>消息发送和转发流程可以概括为：消息发送（Messaging）是Runtime通过selector快速查找IMP的过程，有了函数指针就可以执行对应的方法实现，消息转发（Message Forwarding）是在查找IMP失败后执行一系列转发流程的慢速通道，如果不做转发处理则会打印日志或者抛出异常。
+深入理解原理查看<a href="http://yulingtianxia.com/blog/2016/06/15/Objective-C-Message-Sending-and-Forwarding/">八面玲珑的博客</a></p>
+</blockquote>
+
+<h3 id="runtime-br">一、Runtime基本概念 <br /></h3>
+<p>1、IMP</p>
+<blockquote>
+  <p>IMP是“implementation”的缩写，它是Objective-C指向方法（method）实现开始的指针（A pointer to the start of a method implementation.）。<br />
+表示:<br />
+<code>typedef id (*IMP)(id, SEL, ...);</code> <br />
+它是一个函数指针，这是由编译器生成的，当你发起一个Objc消息之后，最终就会执行那段代码，就是由这个函数指针指定的，而IMP这个函数指针指向了这个方法的实现，既然得到了执行某个实例的某个方法的入口，我们就可以绕开传递阶段，直接执行方法。<br />
+IMP指向的方法与objc_msgSend函数类型相同，参数都包含id和SEL类型，每个方法名都对应一个SEL类型的方法选择器，而每个实例对象中的SEL对应的方法实现肯定是唯一的，通过一组id和SEL参数就能确定唯一的方法实现地址；反之亦然。</p>
+</blockquote>
+
+<p>2、SEL/objc_selector</p>
+<blockquote>
+  <p>SEL是一个指向C String的指针<br />
+<code>typedef struct objc_selector *SEL;</code><br />
+可以使用Objc编译器@selector()或者runtime系统的sel_registerName函数获得一个SEL类型的方法选择器。selector是方法选择器。</p>
+</blockquote>
+
+<p>3、id/objc_object</p>
+<blockquote>
+  <p>id  指向一个类的实例对象<br />
+<code>typedef struct objc_object *id;</code><br />
+objc_object函数表示：<code>struct objc_object {Class isa;}</code><br />
+可以看到，objc_object中，只保存一个Class类型的isa，对象中保存了一个指向类的指针。objc_object结构体包含一个isa指针，根据isa指针就可以顺藤摸瓜找到对象所属的类。<br />
+PS: isa 指针不总是指向实例对象所属的类，不能依靠它来确定类型，而是应该使用Class方法确定对象的类，因为kvo的实现机制就是将被观察对象的isa指针指向一个中间类而不是真实的类，这是这一种isa-swizzling的技术。</p>
+</blockquote>
+
+<p>4、Class/objc_class</p>
+<blockquote>
+  <p>Class - 指向类对象（objc_class）的一个指针<br />
+<code>typedef struct objc_class *Class;</code> <br />
+在objc_class结构体中：ivars是objc_ivar_list指针，methodLists是指objc_method_list指针的指针，也就是说可以动态的修改*methodLists的值来添加成员方法，这也是category实现的原理，同时解释了category不能添加属性的原因。<br />
+PS:但是现在可以利用在category中添加@dynamic的属性，并利用运行期间动态提取存储方法或干脆动态转发，或者干脆使用关联度对象（assciatedObject），就是利用runtime的特性。<br /></p>
+</blockquote>
+
+<p>objc_ivar_list和objc_method_list 分别表示成员变量列表和方法列表：</p>
+<blockquote>
+  <p>理解：<br />
+objc_ivar_list结构体存储这objc_ivar数组列表，而objc_ivar结构体存储了类的单个成员变量的信息，同理objc_method_list结构体存储着objc_method数据列表，而objc_method结构体存储了类的某个方法的信息。</p>
+</blockquote>
+
+<p>为什么objc_class中也有一个isa对象？</p>
+<blockquote>
+  <p>因为objc类本身同时也是一个对象，为了处理类和对象的关系，runtime库创建了一种叫做元类（meta class）的东西，类对象所属类型就叫做元类，它用来表述类对象本身所具备的元数据，类方法就定义于此处，因为这些方法可以理解成类对象的实例方法，每个类仅有一个类对象，而每个类对象仅有一个与之相关的元类，当你发送一个类似[NSObject alloc]的消息时，你事实上是把这个消息发送给了一个类对象（class object），这个类对象必须是一个元类的实例，而这个元类同时也是一个根元类（root meta class）的实例，所有的元类最终都指向根元类为其超类，所有的元类的方法都有能够响应消息的类方法，所以当[NSObject alloc] 这条消息发送给类对象的时候，objc_msgSend()会去它的元类里面查找能够响应消息的方法，如果找到然后对这个类对象执行方法调用。</p>
+</blockquote>
+
+<p>5、method/objc_method</p>
+<blockquote>
+  <p>method - 是一种代表类中的某个方法的类型<br />
+<code>typedef struct objc_method *method;</code><br />
+而objc_method它存储了方法名，方法类型和方法实现。<br /></p>
+  <ul>
+    <li>方法名类型SEL,注意的是相同名字的方法即使在不同类中定义，它们的方法选择器是相同的。<br /></li>
+    <li>方法类型method_types是一个char指针，其实存储着方法的参数类型和返回值类型。<br /></li>
+    <li>method_imp 指向了方法的实现，本质上是一个函数指针</li>
+  </ul>
+</blockquote>
+
+<p>6、_cmd</p>
+<blockquote>
+  <p>SEL类型的一个变量，Objective -C的函数的前两个隐藏参数为self和_cmd</p>
+</blockquote>
+
+<p>7、ivar</p>
+<blockquote>
+  <p>ivar - Objective-C类中的实例变量的类型<br />
+<code>typedef struct objc_ivar *Ivar;</code></p>
+</blockquote>
+
+<p>8、Cache</p>
+<blockquote>
+  <p>定义 :<code>typedef struct objc_cache *Cache;</code> <br />
+Cache 为方法调用的性能进行优化，通俗的说，每当实例对象接收到一个消息时，他不会直接在isa指向的类的方法列表中遍历查找能够响应消息的方法，因为这样效率太低了，而是优先在Cache中查找，runtime系统会调用的方法存到Cache中（防止下次调用再重新去找，提高效率）。</p>
+</blockquote>
+
+<p>9、property</p>
+<blockquote>
+  <p>@property 标记了类中的属性，它是一个指向objc_property 结构体的指针<br />
+ <code>typedef struct objc_property *property;</code><br />
+ <code>typedef struct objc_property *objc_property_t;</code>// 一般这个常用<br />
+ 注意：<br />
+ 1、通过class_copyPropertyList 获取类中的属性，不带下划线<br />
+ 2、通过protocol_copyPropertyList 获取协议中的属性<br />
+ 3、通过class_copyIvarList 可以获取类中的属性，包括成员变量，但是此时获取的属性名是带下划线的</p>
+</blockquote>
+
+<h3 id="section">二、消息</h3>
+<blockquote>
+  <p>Objc中发送消息就是用中括号([])把接受者括起来，而直到运行时才会把消息方法和方法实现绑定。</p>
+</blockquote>
+
+<p>1、objc_msgSend函数<br />
+objc_msgSend 消息发送步骤：</p>
+<blockquote>
+  <p>1.检测这个selector是不是要忽略<br />
+2.检测这个target是不是nil对象，objc的特性允许对一个nil对象执行一个方法不会crash，因为会忽略<br />
+3.如果上面两个都过了，那就开始查找这个类的IMP,先从Cache中查找，完了就去对应的函数去执行。<br />
+4.如果Cache找不到就找下一个方法分发表（Class 中的方法列表：它将方法选择器和方法实现地址联系起来）。<br />
+5.如果分发表中找不到就去超类的分发表去找，一直找，直到找到NSObject类为止。<br />
+6.如果还找不到就要开始进入动态方法解析（后面讲解）。<br />
+四个调用方法：objc_msgSend ,objc_msgSend_stret ,objc_msgSendSuper,objc_msgSendSuper_stret，根据情况选择一个阿里调用。</p>
+</blockquote>
+
+<p>2、method中的隐藏参数<br />
+当objc_msgSend 找到方法对应的实现时，它将直接调用该方法的实现，并将消息中的所有的参数传递给方法实现，同时还将传递两个隐藏的参数:</p>
+<blockquote>
+  <p>接收消息的对象（也就是self指向的内容）<br />
+方法选择器（_cmd）指向的内容</p>
+</blockquote>
+
+<p>3、动态方法解析<br />
+使用@dynam关键字在类的实现方法中修饰一个属性:</p>
+<blockquote>
+  <p><code>@dynamic propertyName;</code><br />
+这表明我们会为这个属性动态的提供存取方法，也就是说编译器不会再默认为我们生成setter和getter方法，而需要我们动态提供，我们可以通过分别重载resolveInstanceMethod:和resolveClassMethod:方法分别添加实例变量和类方法实现，因为当runtime系统在Cache和方法分发表找不到执行的方法时，就会调用resolveInstanceMethod:和resolveClassMethod:来给程序员一次动态添加方法实现的机会。我们需要用class_addMethod函数完成向特定类添加特定方法实现的操作。<br />
+ps： 动态方法解析会在消息转发机制侵入前执行。</p>
+</blockquote>
+
+<p>理解[self class]与object_getClass(self)以及object_getClass(self class)的关系?</p>
+<blockquote>
+  <p>1.当self 为实例对象时，[self class] 与object_getClass(self)等价，因为前者调用后者，object_getClass([self class])得到元类。<br />
+2.当self为类对象时，[self class]返回值为自身，还是self,object_getClass(self)与object_getClass(self class)等价</p>
+</blockquote>
+
+<p>4、重定向<br />
+在消息转发机制执行前，runtime系统会给我们一次偷梁换柱的机会，即通过重写- <code>(id)forwardingTargetForSelector:(SEL)aSelector</code>方法替换消息接受者为其他对象。</p>
+
+<p>5、转发<br />
+当动态方法解析不做处理返回No时，消息转发机制会被触发，在这时<code>forwardInvocation:</code>被执行，我们可以重写这个方法定义我们自己的转发逻辑。</p>
+
+<p>6、转发与继承<br />
+消息转发弥补了objc不支持多继承的性质。<br />
+尽管转发很像继承，但是NSObject类不会将两者混淆，想<code>respondsToSelector: 和 isKindOfClass:</code> 这类方法只会考虑继承体系，不会考虑转发链。</p>
+
+<p>7、Objective-C Associated Objects<br />
+Runtime系统让Objc支持向对象动态添加变量，设计下列三个函数:</p>
+<blockquote>
+
+  <p>1.<code>void objc_setAssociatedObject ( id object, const void *key, id value, objc_AssociationPolicy policy );</code><br />
+2.<code>id objc_getAssociatedObject ( id object, const void *key );
+</code><br />
+3.<code>void objc_removeAssociatedObjects ( id object );</code><br />
+这些 方法以键值对的形式动态的地向对象添加、获取、或删除关联值。</p>
+</blockquote>
+
+<h3 id="br">三、基础知识点 <br /></h3>
+<p><strong>1、objc中向一个nil对象发送消息将会发生什么？<br /></strong></p>
+<blockquote>
+  <p>在Objective-C中向nil发送消息是完全有效的—-只是在运行时不会有任何作用。<br />
+1.如果一个方法的返回值是一个对象，那么发送给nil的消息将返回0（nil）<br />
+2.如果方法返回值为指针类型，其指针大小为小于或等于sizeof(void *)，float,double，long double，或者long long的整型数标。发送给nil消息将返回0<br />
+3.如果方法返回值为结构体，发送给nil的消息将返回0，结构体中各个字段的值将都是0。<br />
+4.如果方法的返回值不是上述提到的这些情况，那么发送给nil的消息的返回值将是未定义的。<br /></p>
+</blockquote>
+
+<p>具体原因：</p>
+<blockquote>
+  <p>objc是动态语言，每个方法在运行时会被动态转发为消息发送，即:<code>objc_msgSend(receiver,selector)</code><br />
+objc在向一个对象发送消息时，runtime库会根据对象的isa指针找到该对象实际所属的类，然后在该类中的方法列表以及其父类方法列表中寻找方法运行，然后在发送消息的时候，objc_msgSend方法不会返回值，所谓的返回内容都是具体调用时执行的。那么如果向一个nil对象发送消息时，首先在寻找isa指针就返回0，所以不会出现任何错误。</p>
+</blockquote>
+
+<p><strong>2、objc中向一个对象发送消息[obj foo]和objc_msgSend()函数之间什么关系？</strong><br /></p>
+<blockquote>
+  <p>[obj foo] 该方法编译之后就是objc_msgSend()函数的调用<br />
+[obj foo] 在objc动态遍以时，会被转意成：objc_msgSend(obj ,@selector(foo))</p>
+</blockquote>
+
+<p><strong>3、什么时候会报unrecognized selector的异常？</strong><br />
+一般简单的说:</p>
+<blockquote>
+  <p>当调用该对象上某个方法，而该对象上没有实现这个方法的时候，可以通过“消息转发”来解决。</p>
+</blockquote>
+
+<p>消息发送流程：</p>
+<blockquote>
+  <p>objc 在向一个对象发送消息时，runtime库会根据对象的isa指针找到该对象实际所属的类，然后在该类的中的方法列表以及其父类的方法列表中寻找方法运行，如果在最顶层的父类中依然找不到相应的方法时，程序在运行时就会crash并且跑出异常，unrecognized selector send to XXX</p>
+</blockquote>
+
+<p>在程序crash之前，objc的运行时会给出三次拯救奔溃的机会：<br />
+1.Method resolution<br /></p>
+<blockquote>
+  <p>objc运行时会调用<code>resolveInstanceMethod:</code>或者<code>+resolveClassMethod:</code>,让我们有一个机会提供函数的实现，如果添加了函数，那运行时系统就会重新启动一次消息发送的过程，否则，运行时就会移到下一步“消息转发(Message Forwarding )”。<br /></p>
+</blockquote>
+
+<p>2.Fast  Forwarding<br /></p>
+<blockquote>
+  <p>如果目标对象实现了<code>-forwardingTargetForSelector:</code>，runtime这时就会调用这个方法，给你把这个消息转发给其他对象，只要这个方法返回的不是nil和self，整个消息发送的过程就会被重启，当然发送的对象会变成返回的那个对象，否则就会继续Normal Forwarding。这里叫fast，只是为了区别下一步转发机制，因为这一步不会创建新的对象，但下一步转发会创建一个NSInvocation对象，所以相对fast。<br /></p>
+</blockquote>
+
+<p>3.Normal forwarding</p>
+<blockquote>
+  <p>这一步是runtime最后一次挽救的机会，首先它发送<code>-methodSignatureForSelector:</code>消息获得函数的参数和返回值类型，如果<code>-methodSignatureForSelector:</code>返回nil，runtime则会发出<code>-doesNotRecognizeSelector:</code>消息,程序在这个时间已经挂掉了。如果返回一个函数签名，runtime就会创建一个NSInvocation对象并发送<code>-forwardInvocation:</code>消息给目标对象。</p>
+</blockquote>
+
+<p><strong>4、一个objc对象如何进行内存布局？(考虑有父类的情况)</strong><br />
+.所有父类的成员变量和自己的成员变量都会存放在该对象所对应的存储空间中。<br />
+.每一个对象内部都会有一个isa指针，指向他的类对象，类对象中存放着本对象的如下信息：</p>
+<blockquote>
+  <p>1.对象方法列表（对象能够接受的消息列表，保存在它所对应的类对象中）<br />
+2.成员变量的列表<br />
+3.属性列表<br />
+类对象的内部也有一个isa指针指向元对象（meta class），元对象内部存放的是类方法列表，类对象内部还有一个superclass的指针，指向他的父类对象。<br /></p>
+</blockquote>
+
+<p>注意：</p>
+<blockquote>
+  <p>.根对象就是NSObject，它的superclass指针指向的是nil<br />
+.类对象也是对象，是一个实例，类对象也有一个isa指针指向他的元类，即类对象的元类实例，元类内部存放的是类方法列表，根元类isa指针指向自己，superclass指向NSObject类。</p>
+</blockquote>
+
+<p><strong>5、一个objc对象的isa指针指向的是什么？有什么作用？</strong><br />
+指向他的类对象，从而找到对象上的方法（属性，成员变量）</p>
+
+<p><strong>6、runtime是如何通过selector找到IMP地址？(分别类方法和实例方法)</strong><br />
+每一个类对象中都有一个方法列表，方法列表中记录着方法的名称，方法实现，以及参数类型，其实selector本质就是方法名称，通过这个方法名称就可以在方法列表中找到对应的实现。</p>
+
+<p><strong>7、使用runtime Associate方法关联的对象，需要在主对象dealloc的时候释放吗？</strong><br />
+无论MRC还是ARC下均不需要</p>
+
+<p>对象的内存销毁时间表，分四个步骤：</p>
+<blockquote>
+  <p>1.调用-release ： 引用计数器为0<br />
+ * 对象正在被销毁，生命周期即将结束<br />
+ * 不能在有新的__Weak 弱引用，否则将指向nil<br />
+ * 调用[self dealloc]<br />
+2.子类调用-dealloc<br />
+ * 继承关系中最底层的子类在调用-dealloc<br />
+ * 如果是MRC代码 则会手动释放实例变量们（iVars）<br />
+ * 继承关系中每一层的父类都在调用-dealloc<br />
+3.NSObject 调 -dealloc<br />
+ * 只做一件事：调用Objective-C runtime 中的object_dispose()方法<br />
+4.调用object_dispose()<br />
+ * 为C++的实例变量们（iVars）调用destructors<br />
+ * 为ARC状态下的实例变量们（iVars）调用-release<br />
+ * 解除所有使用runtime Associate方法关联对象<br />
+ * 解除所有__Weak 引用<br />
+ * 调用free（）</p>
+</blockquote>
+
+<p><strong>8、objc中的类方法和实例方法有什么本质区别和联系？</strong><br />
+类方法：</p>
+<blockquote>
+  <ul>
+    <li>1.类方法是属于类对象的<br /></li>
+    <li>2.类方法只能通过类对象调用<br /></li>
+    <li>3.类方法中的self是类对象</li>
+    <li>4.类方法可以调用其他的类方法</li>
+    <li>5.类方法中不能访问成员变量</li>
+    <li>6.类方法中不能直接调用对象方法</li>
+  </ul>
+</blockquote>
+
+<p>实例方法：</p>
+<blockquote>
+
+  <ul>
+    <li>1.实例方法是属于实例对象的</li>
+    <li>2.实例方法只能通过实例对象调用</li>
+    <li>3.实例方法中的self是实例对象</li>
+    <li>4.实例方法中可以访问成员变量</li>
+    <li>5.实例方法中可以直接调用实例方法</li>
+    <li>6.实例方法可以调用类方法（通过类名）</li>
+  </ul>
+</blockquote>
+
+<p><strong>9、_objc_msgForward 函数是做什么的？直接调用它就会发生什么？</strong><br />
+<code>_objc_msgForward</code> 是IMP类型，用于消息转发的：当向一个对象发送一条消息，但它并没有实现的时候，<code>_objc_msgForward</code>会尝试做消息转发。<br /></p>
+
+<p>回顾消息传递：</p>
+<blockquote>
+  <p>在”消息传递“的过程中objc_msgSend的动作就是：首先在Class中的缓存查找IMP（没缓存则初始化缓存），如果没有找到，则向父类的Class查找，如果一直查找到根类依旧没有实现，则用<code>_objc_msgForward</code>函数指针代替IMP，最后执行这个IMP。</p>
+</blockquote>
+
+<p>总结<code>_objc_msgForward</code>消息转发做的几件事：</p>
+<blockquote>
+  <ul>
+    <li>1.调用<code>resolveInstanceMethod:</code>方法（或<code>resolveClassMethod:</code>）,允许用户在此时为该class动态添加实现，如果有实现了则调用并返回YES，那么重新开始<code>objc_msgSend</code>流程。，这一次对象会响应这个选择器，一般是因为它已经调过了<code>class_addMethod</code>，如果仍没实现，继续下面的动作</li>
+    <li>2.调用<code>forwardingTargetForSelector:</code>方法，尝试找到一个能响应消息的对象，如果获取到，则直接把消息转发给它，返回非nil对象，否则返回nil，继续下面动作，这里需要注意不能返回self，会造成死循环.</li>
+    <li>3.调用<code>methodSignatureForSelector:</code>方法，尝试获得一个方法签名，如果获取不到，则直接调用 <code>doesNotRecognizeSelector:</code>抛出异常，如果能获取，则返回非nil，创建一个NSInvocation并传给<code>forwardInvocation:</code></li>
+    <li>4.调用<code>forwardInvocation:</code>方法，将第三步获取到的方法签名包装成invocation传入，如何处理就在这里面，并返回非nil</li>
+    <li>5.调用<code>doesNotRecognizeSelector:</code>，默认的实现是抛出异常，如果第三步没能获取到一个方法签名，就执行这个方法。</li>
+  </ul>
+</blockquote>
+
+<p>以上的方法均属于模板方法，开发者尅override ，有runtime来调动，最常见实现消息转发：就是重写3和4方法，吞掉一个消息或者代理给其他对象都是没有问题的。<br /></p>
+
+<p>直接调用<code>_objc_msgForward</code>会发生什么？<br /></p>
+<ul>
+  <li>一旦调用了<code>_objc_msgForward</code>，将跳过超找IMP的过程，直接触发“消息转发”</li>
+  <li>如果调用了<code>_objc_msgForward</code>，即使这个对象确实已经实现了这个方法，你也会告诉<code>objc_msgSend</code>我没有在这个对象里找到方法的实现。<br /></li>
+</ul>
+
+<p>直接消息转发，是一个非常危险的操作，但是如果用的好就是大牛了。<br />
+常见的使用<code>_objc_msgForward</code>场景：想获取某方法对应的NSInvocation对象
+。详细实例：JSPatch，在：<a href="http://blog.cnbang.net/tech/2808/">《JSPatch实现原理详解》</a>就直接调用了<code>_objc_msgForward</code>来实现的。</p>
+
+<p><strong>10、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量，为什么？</strong></p>
+<ul>
+  <li>不能向编译后得到的类中增加实例变量；</li>
+  <li>能向运行时创建的类中添加实例变量；
+<br /></li>
+</ul>
+
+<p>解释：</p>
+<blockquote>
+
+  <ul>
+    <li>因为编译后的类已经注册到runtime中，类结构体中的 <code>objc_ivar_list</code>实例变量的链表和<code>instance_size</code>实例变量的内存已经确定，同时runtime会调用<code>class_setIvarLayout</code>或<code>class_setWeakIvarLayout</code>来处理strong weak的引用，所以不能向存在类中添加实例变量</li>
+    <li>运行时创建的类是可以添加实例变量的，调用<code>class_addIvar</code>函数，但是要在调用<code>objc_allocateClassPair</code>之后，在<code>objc_registerClassPair</code>之前，原因同上。</li>
+  </ul>
+</blockquote>
+
+<hr />
+<p>参考资料：<br />
+<a href="https://github.com/ChenYilong/iOSInterviewQuestions/blob/master/01%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88/%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88%EF%BC%88%E4%B8%8A%EF%BC%89.md#14-synthesize%E5%90%88%E6%88%90%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E7%9A%84%E8%A7%84%E5%88%99%E6%98%AF%E4%BB%80%E4%B9%88%E5%81%87%E5%A6%82property%E5%90%8D%E4%B8%BAfoo%E5%AD%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%90%8D%E4%B8%BA_foo%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E9%82%A3%E4%B9%88%E8%BF%98%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%90%88%E6%88%90%E6%96%B0%E5%8F%98%E9%87%8F%E4%B9%88">@iOS程序犭袁的Git分享</a></p>
+
+  </section>
+</article>
+
+<section class="read-more">
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">最近的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2016/12/my-frist-blog/" title="link to 2017新的开始">2017新的开始</a></h2>
+       <p class="excerpt">  前前后后折腾了很多的博客，但是都感觉到最后没有了毅力和精力去打理，一直想自己搭建一个网站自己写属于自己的博客，但是都由于种种原因一直搁浅，在2017年来临之际，我决定自己要重新开始了，做过了三年的iOS开发，开发项目，写代码，很多的知识点都写在印象笔记或者别的地方，有时间找也找不到，新的开始，从这里起航…2016年马上就要过年了，北漂的日子满满的一年半多了，这一年找到工作，上了班，正式的开始我的北漂生活，这一年有辛酸也有快乐，对于做技术的我来说北京确实是一个牛人居多的地方，这里的生活方...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2016-12-30 09:32:24 +0800" class="post-list__meta--date date">2016-12-30</time> &#8226; <span class="post-list__meta--tags tags">随记杂谈集</span><a class="btn-border-small" href=/2016/12/my-frist-blog/>继续阅读</a></div>
+   </div>
+   
+   
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">更早的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2016/02/iOS-first-Notes/" title="link to 基础篇-Property">基础篇-Property</a></h2>
+       <p class="excerpt">一、property相关@property有哪些修饰符1、线程安全（原子性）  atomic 和 nonatomic详解：atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。注意：1.atomic原子性指的是一个操作不可以被CPU中途暂停，然后再调度。即不能被中断，要么就执行完，要么就不执行。2.atomic是自旋锁，当上一线程没有执行完毕的时候（被锁住），下一个线程会...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2016-02-12 18:32:24 +0800" class="post-list__meta--date date">2016-02-12</time> &#8226; <span class="post-list__meta--tags tags">Objective-C回顾温习集</span><a class="btn-border-small" href=/2016/02/iOS-first-Notes/>继续阅读</a></div>
+   </div>
+   
+</section>
+
+<section class="post-comments">
+  
+    <div id="disqus_thread"></div>
+    <script>
+    
+    var disqus_config = function () {
+        this.page.url = "https://shunzhitang.github.io/2016/04/iOS-method-Note/";
+        this.page.identifier = "/2016/04/iOS-method-Note/";
+    };
+
+    var disqus_shortname = 'Tangfeng';
+    
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>要查看<a href="http://disqus.com/?ref_noscript"> Disqus </a>评论，请启用 JavaScript</noscript>
+    
+  
+  
+  
+  
+</section>
+
+
+            <section class="footer">
+    <footer>
+    	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
+        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2017-05-04 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
+        <span class="footer__copyright">本站由 <a href="https://github.com/ShunzhiTang">@tangfeng</a> 创建，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题，您可以在 GitHub 找到<a href="https://github.com/onevcat/OneV-s-Den">本站源码</a> - &copy; 2017</span>
+    </footer>
+</section>
+
+        </div>
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script type="text/javascript" src="/js/main.js"></script>
+
+
+
+    
+  </body>
+
+</html>
