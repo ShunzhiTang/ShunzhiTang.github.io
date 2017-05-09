@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <title>基础篇-并发编程</title>
+  <meta name="description" content="  iOS中的多线程，是Cocoa框架下的多线程，通过Cocoa的封装，可以让我们更方便的进行多线程编程。">
+  <meta name="author" content="Wei Wang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="基础篇-并发编程">
+  <meta name="twitter:description" content="  iOS中的多线程，是Cocoa框架下的多线程，通过Cocoa的封装，可以让我们更方便的进行多线程编程。">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="基础篇-并发编程">
+  <meta property="og:description" content="  iOS中的多线程，是Cocoa框架下的多线程，通过Cocoa的封装，可以让我们更方便的进行多线程编程。">
+
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="https://shunzhitang.github.io/2016/10/iOS-gcd-Note/">
+  <link rel="alternate" type="application/rss+xml" title="枫" href="https://shunzhitang.github.io/feed.xml">
+
+  <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+
+</head>
+
+
+  <body>
+
+    <span class="mobile btn-mobile-menu">
+        <i class="fa fa-list btn-mobile-menu__icon"></i>
+        <i class="fa fa-angle-up btn-mobile-close__icon hidden"></i>
+    </span>
+    
+    <header class="panel-cover panel-cover--collapsed" style="background-image: url('/assets/images/background-cover.jpg')">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+
+        <a href="/#blog" title="前往 枫 的主页" class="blog-button"><img src="/assets/images/avatar.jpg" width="80" alt="枫 logo" class="panel-cover__logo logo" /></a>
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for 枫" class="blog-button">枫</a></h1>
+        
+        <span class="panel-cover__subtitle panel-subtitle">荣辱不惊，闲看庭前花开花落</span>
+        
+        <hr class="panel-cover__divider" />
+        <p class="panel-cover__description">嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" />
+        
+        
+        <p class="panel-cover__description"><a href="https://shunzhitang.github.io" target="_blank">每一次相遇都值得珍惜 ^_^</a></p>
+        
+        
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="访问博客" class="blog-button">博客</a></li>
+                
+                  <li class="navigation__item"><a href="https://shunzhitang.github.io" target="_blank" title="about">关于</a></li>
+                
+              </ul>
+            </nav>
+          </div>
+          
+          <div><nav class="cover-navigation navigation--social">
+  <ul class="navigation">
+
+  
+  <!-- Weibo -->
+  <li class="navigation__item">
+    <a href="http://weibo.com/5721825289" title="@5721825289 的微博" target="_blank">
+      <i class='social fa fa-weibo'></i>
+      <span class="label">Weibo</span>
+    </a>
+  </li>
+  
+
+  
+  <!-- Github -->
+  <li class="navigation__item">
+    <a href="https://github.com/ShunzhiTang" title="@ShunzhiTang 的 Github" target="_blank">
+      <i class='social fa fa-github'></i>
+      <span class="label">Github</span>
+    </a>
+  </li>
+  
+  
+  
+  <!-- Twitter -->
+  <li class="navigation__item">
+    <a href="http://twitter.com/tangfengdream" title="@tangfengdream" target="_blank">
+      <i class='social fa fa-twitter'></i>
+      <span class="label">Twitter</span>
+    </a>
+  </li>
+  
+
+  
+
+  <!-- RSS -->
+  <li class="navigation__item">
+    <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+      <i class='social fa fa-rss'></i>
+      <span class="label">RSS</span>
+    </a>
+  </li>
+
+  
+
+  </ul>
+</nav>
+</div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-slate"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="2016-10-02 21:13:24 +0800" itemprop="datePublished" class="post-meta__date date">2016-10-02</time> &#8226; <span class="post-meta__tags tags">Objective-C回顾温习集</span>
+    </div>
+    <h1 class="post-title">基础篇-并发编程</h1>
+  </header>
+
+  <section class="post">
+    <blockquote>
+
+  <p>iOS中的多线程，是Cocoa框架下的多线程，通过Cocoa的封装，可以让我们更方便的进行多线程编程。</p>
+</blockquote>
+
+<h3 id="br">一、 基础概念<br /></h3>
+<p><strong>1、术语</strong><br /></p>
+<ul>
+  <li>线程（Thread）: 指的是一个独立的代码执行路径，也就是说线程是代码执行路径的最小分支。 在iOS中，是真正执行任务，负责代码执行的基本单元。OS X中的线程的实现是基于POSIX的Pthread API。</li>
+  <li>进程(process) : 指的是一个正在运行的可执行文件。每个进程都拥有独立的虚拟内存空间和系统资源，包括端口权限等，且至少包含一个主线程和任意数量的辅助线程，另外，当一个进程的主线程退出时，这个进程就结束了。</li>
+  <li>任务（Task）: 一个抽象的概念，用于表示一系列需要完成的工作。一般来说，就是指一段代码。</li>
+</ul>
+
+<p><strong>2、iOS中多线程编程方式</strong><br /></p>
+<ul>
+  <li>1.Pthread
+    <blockquote>
+      <p>百度百科定义： POSIX线程（POSIX threads），简称Pthread，是线程的POSIX标准。该标准定义了创建和操纵线程的一套API。在类Unix操作系统（Unix、Linux，Mac OS X）等中，都是用Pthread作为操作系统的线程。<br />
+简单的说，这是一套在很多操作系统上通用的多线程API，所以移植性强，在iOS中是完全可以使用的，是一套基于C语言的框架，在现在的开发中很少使用了。（其实可以忽略）</p>
+    </blockquote>
+  </li>
+  <li>2.NSThread
+    <blockquote>
+      <p>NSThread是一个控制线程执行的对象，通过它我们可以方便的得到一个线程并控制它。NSThread的线程之间的并发控制，是需要我们自己来控制的，可以通过NSCondition实现。它的缺点就是需要我们自己维护线程的生命周期和线程的同步和互斥，优点是轻量，灵活。<br />
+但由于它的同步和互斥需要自己维护，所以在多线的开发中渐渐的失去了优势，现在最多的应用在调试或一些特定的情况。</p>
+    </blockquote>
+  </li>
+  <li>3.GCD
+    <blockquote>
+      <p>GCD(Grand Central Dispatch)是Apple开发的一个多核编程的解决方法，在iOS4.0开始后才能使用。GCD是一个可以替代NSThread的很高效和强大的技术。最重要的是它会自动管理线程的生命周期（创建线程，调度任务，销毁线程），完全不需要我们管理，只需要告诉它干什么就可以，非常好使。<br />
+在GCD中加入了两个很重要的概念： 任务和队列<br />
+  A.任务：即操作，就是真正需要干活的代码<br />
+  B.队列：用于存放任务。分为串行队列和并行队列</p>
+    </blockquote>
+  </li>
+  <li>4.NSOperation
+    <blockquote>
+      <p>NSOperation是一个抽象类，是Apple对GCD的封装，完全面向对象，它封装了线程的细节实现，不需要自己管理线程的生命周期和线程的同步和互斥等。只是需要关注自己的业务逻辑处理，需要NSOperationQueue一起使用。使用NSOperation时，你可以很方便的设置线程之间的依赖关系。这样在略微复杂的业务需求中尤为重要。<br />
+理解：NSOperation和NSOperationQueue分别对应GCD的任务和队列<br />
+  A.将要执行的任务封装到一个NSOperation对象中。<br />
+  B.将此任务添加到一个NSOperationQueue独享中。</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p>题外话：上面的1-4的顺序也是Apple给我们开发者贡献的一个优雅方便实现iOS并发编程的历程。在现代的Objective-C中，Apple已经不推荐使用NSThread来进行并发编程，而是推荐使用GCD和NSOperation。</p>
+
+<h3 id="grand-central-dispatchgcd-br">二、Grand Central Dispatch(GCD) <br /></h3>
+<p>Grand Central Dispatch(GCD)是苹果在Mac OS X 10.6以及iOS4.0开始引入的一个高性能并发编程机制，底层实现库名叫libdispatch。由于它确实很好用，libdispatch已经被移植到了FreeBSD上，Linux上也有port过去的libdispatch实现。<br /></p>
+
+<p><strong>1、想要了解GCD，首先要了解下面几个概念：</strong><br /></p>
+<blockquote>
+
+  <ul>
+    <li>Dispatch Queue ： Dispatch Queue 顾名思义，是一个用于维护的任务队列，它可以接受任务（即可以将一个任务加入某个队列）然后在适当的时候执行队列中的任务。</li>
+    <li>Dispatch Sources: Dispatch  Source 允许我们把任务注册到系统事件上，例如socket和文件描述符，类似于Linux中epoll的作用。</li>
+    <li>Dispatch Groups：Dispatch Groups可以让我们把一系列任务加到一个组里，组里的每一个任务都要等待整个组的所有任务都结束之后才结束，类似pthread_join的功能。</li>
+    <li>Dispatch Semaphores： 这个就是大家都知道的信号量了，可以让我们实现更加复杂的并发控制，防止资源竞争。</li>
+  </ul>
+</blockquote>
+
+<p>这些东西中最经常用到的是Dispatch Queue，之前提到Dispatch Queue就是一个类似队列的数据结构，而且是FIFO（first in，first out）队列，因此任务开始执行的顺序，就是你把它们放在queue中的顺序。</p>
+
+<p><strong>2、GCD中的队列</strong><br />
+GCD中有三种队列：</p>
+<blockquote>
+
+  <ul>
+    <li>1.Serial（串行队列）串行队列中任务会按照添加到queue中的顺序一个一个执行。串行队列在前一个任务执行之前，后一个任务是被阻塞的，可以利用这个特性来进行同步操作。<br />
+<br />
+我们可以创建多个串行队列，这些队列中的任务是串行执行的，但是这些队列本身可以并发执行。例如有四个串行队列，有可能同时有四个任务在并行执行，分别来自这四个队列。</li>
+    <li>2.Concurrent（并行队列），也叫global dispatch queue，可以并发地执行多个任务，但是任务开始的顺序仍然是按照被添加到队列中的顺序。具体任务执行的线程和任务执行的并发数，都是由GCD进行管理的。<br />
+<br />
+在iOS5之后，我们可以创建自己的并发队列。系统已经提供了四个全局可用的并发队列（后面会讲到）。</li>
+    <li>3.Main Dispatch Queue (主队列)，主队列是一个全局可见的串行队列，其中的任务会在主线程中执行。主队列通过与应用程序的runloop交互，把任务安插在runloop当中执行。因为主队列比较特殊，其中的任务确定会在主线程中执行，通常主队列会被用作同步的作用。</li>
+  </ul>
+</blockquote>
+
+<p><strong>3、创建和获取队列</strong> <br />
+按照上面提到的三种队列，我们有对应的三种获取队列的方式：</p>
+<ul>
+  <li>1.串行队列 系统默认并不提供串行队列，需要我们手动创建：
+    <blockquote>
+
+      <p><code>dispatch_queue_t queue</code><br />
+<code>queue = dispatch_queue_create("com.example.TQueue",NULL);// iOS4.3之前</code><br />
+<code>queue = dispatch_queue_create("com.example.TQueue",DISPATCH_QUEUE_SERIAL);//之后</code></p>
+    </blockquote>
+  </li>
+  <li>2.并行队列，系统默认提供了四个全局可用的并发队列，其优先级不同，分别为：<code>DISPATCH_QUEUE_PRIORITY_HIGH</code>，<code>DISPATCH_QUEUE_PRIORITY_DEFAULT</code>，<code>DISPATCH_QUEUE_PRIORITY_LOW</code>，<code>DISPATCH_QUEUE_PRIORITY_BACKGROUND</code>，优先级依次降低，优先级别越高的队列在任务中会更早的执行，（注意：不能说优先级越高的就一定会先执行，这个是不对的，因为它只是执行的概率大不是一定）。<br />
+获取队列：<code>dispatch_queue_t aQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);</code> <br />
+创建并发队列：
+<code>dispatch_queue_t queue = dispatch_queue_create("com.example.TQueue",DISPATCH_QUEUE_CONCURRENT);</code></li>
+</ul>
+
+<p><strong>4、自己创建的队列与系统队列有什么不同？</strong><br />
+事实上，我们自己创建的队列，最终会把任务分配到系统提供的主队列和四个全局并行队列上，这个操作叫做Target queues。具体来说，我们创建的串行队列的target queue就是系统的主队列，我们创建的并行队列的target queue默认是系统的default优先级的全局串行队列，所有放在我们创建队列中的任务，最终都会到target queue中完成真正的执行。<br /></p>
+
+<p>那么就是说我们自己创建的队列没有任何意思吗？其实不是的，通过我们自己创建的队列，以及dispatch_set_target_queue和barrier等操作，可以实现比较复杂的任务之间的同步，可以参考<a href="http://www.humancode.us/2014/08/14/target-queues.html">《Global concurrent queues》</a>。通常情况下，对于串行队列，我们应该自己创建，对于并行队列，就直接使用系统提供的Default优先级的queue。<br />
+注意：对于dispatch_barrier 系列函数来说，传入的函数应当是自己创建的并行队列，否则barrier将失去作用。</p>
+
+<p><strong>5、创建的Queue需要释放吗？</strong><br />
+在iOS6之前，使用dispatch_queue_create 创建的queue需要使用dispatch_retain和dispatch_release 进行管理，在iOS6系统把dispatch也纳入ARC的管理的范围，就不需要我们进行手动管理了。
+现在应该没有iOS5需要兼容了，所以就不要手动释放了。</p>
+
+<p><strong>6、执行任务</strong><br />
+给queue添加任务有两种方式，同步和异步。同步方式会阻塞当前线程的执行，等待添加任务执行完毕之后向下执行。异步方式不会阻塞当前线程的执行。</p>
+
+<p><strong>7、注意事项</strong><br /></p>
+<ul>
+  <li>同步和异步添加，与队列是串行队列和并行队列没有关系。可以同步地给并行队列添加任务，也可以异步地给串行队列添加任务。同步和异步添加只影响是不是阻塞当前线程，和任务的串行或并行执行没有关系。</li>
+  <li>如果在任务block中创建了大量对象，可以考虑在block中添加autoreleasepool，尽管每个queue自身都会有autorelease pool来管理内存，但是pool进行drain的具体时间没有办法确定。如果应用对于内存占有比较敏感，可以自己创建autorelease pool来进行内存管理。</li>
+</ul>
+
+<p><strong>8、关于线程安全</strong> <br /></p>
+<ul>
+  <li>
+    <p>Dispatch Queue 本身是线程安全的，换句话说，你可以从系统的任何一个线程给queue添加任务，不需要考虑加锁和同步问题。</p>
+  </li>
+  <li>
+    <p>避免在任务中使用锁，如果使用锁的话可能会阻碍queue中其他task的运行。</p>
+  </li>
+  <li>
+    <p>不建议获取dispatch_queue底层所使用的thread的有关信息，也不建议在queue中再使用Pthread系函数。</p>
+  </li>
+</ul>
+
+<h3 id="gcd-br">三、GCD案例分析 <br /></h3>
+<p><strong>1、案例一</strong><br />
+代码如下：
+<img src="/image/gcdcode01.png" alt="案例一代码" title="案例一代码示例图" />
+控制台输出 1 <br />
+分析：</p>
+<blockquote>
+
+  <p>1.dispatch_sync表示这是一个同步线程<br />
+2.dispatch_get_main_queue 表示其运行在主线程中的主队列<br />
+3.任务2是同步线程的任务<br /></p>
+</blockquote>
+
+<p>如图所示：
+<img src="/image/gcd01.png" alt="案例一" title="案例一示例图" /></p>
+
+<p>过程描述和解析：</p>
+<blockquote>
+
+  <p>首先执行任务1，这是没有问题的，只是接下来，程序遇到了同步线程，那么它就进入等待，等待任务2执行完，然后任务3，但这是队列，有任务来，当然将任务添加到队尾，然后遵循FIFO原则执行任务，那么任务2会被加到最后，任务3在任务2的前面，那么久会形成任务3要等待任务2执行完才能执行，任务2要等待任务任务3执行完才能执行，这样他们就进入了一个互相等待的局面。这就造成了死锁。</p>
+</blockquote>
+
+<p><strong>2、案例二</strong><br />
+代码如下：
+<img src="/image/gcdcode02.png" alt="案例二代码" title="案例二代码示例图" />
+控制台输出 1 2 3<br /></p>
+
+<p>如图所示：
+<img src="/image/gcd02.png" alt="案例二" title="案例二示例图" /></p>
+
+<p>过程描述和解析：</p>
+<blockquote>
+  <p>首先执行任务1 ，接下来会遇到一个同步线程，程序会进入等待，等待任务2执行完成以后，才去执行任务3。从dispatch_get_global_queue可以看出，任务2被加到全局的并行队列中，当并行队列执行完成任务2之后，返回主队列，继续执行任务3。</p>
+</blockquote>
+
+<p><strong>3、案例三</strong><br />
+代码如下：
+<img src="/image/gcdcode03.png" alt="案例三代码" title="案例三代码示例图" />
+控制台输出 1 5 2 （2 和 5的顺序不一定）<br /></p>
+
+<p>分析：</p>
+<blockquote>
+  <p>这里没有使用系统提供的串行或并行队列，而是通过dispatch_queue_create函数创建了一个DISPATCH_QUEUE_SERIAL的串行队列。</p>
+</blockquote>
+
+<p>如图所示：
+<img src="/image/gcd03.png" alt="案例三" title="案例三示例图" /></p>
+
+<p>过程描述和解析：</p>
+<blockquote>
+
+  <ul>
+    <li>1.执行任务1</li>
+    <li>2.遇到异步线程，将【任务1、同步线程、任务4】加入串行队列。因为是异步线程，所以在主线程的任务5不必等待异步线程中的所有任务完成。</li>
+    <li>3.因为任务5不必等待，所以2和5的输出顺序不能确定</li>
+    <li>4.任务2执行完以后，遇到同步线程，这时，将任务3加入异步的串行队列。</li>
+    <li>5.又因为任务4比任务3早加入串行队列，所以，任务3要等待任务4完成以后，才能执行，但是任务3所在的同步线程会阻塞，所以任务4必须等待任务3执行完以后再执行。这就陷入了无限的等待，造成死锁。</li>
+  </ul>
+</blockquote>
+
+<p><strong>4、案例四</strong><br />
+代码如下：
+<img src="/image/gcdcode04.png" alt="案例四代码" title="案例四代码示例图" />
+控制台输出 1 2 5 3 4 （5和2顺序不一定）<br /></p>
+
+<p>如图所示：
+<img src="/image/gcd04.png" alt="案例四" title="案例四示例图" /></p>
+
+<p>过程描述和解析：</p>
+<blockquote>
+
+  <ul>
+    <li>1.【将任务1、异步线程、任务5】加入Main Queue 中，异步线程中的任务【任务2、同步线程、任务4】</li>
+    <li>2.先执行任务1 ，然后将异步线程中的任务加入到Global Queue中，因为异步线程，所以任务5不用等待，结果就是2和5的输出顺序不一定。</li>
+    <li>3.再看异步线程中的任务执行顺序，任务2执行完以后，遇到同步线程中的任务加入到Main Queue中，这时加入的任务3在任务5的后面。</li>
+    <li>4.当任务3执行完，没有了阻塞，程序继续执行任务4.</li>
+  </ul>
+</blockquote>
+
+<p><strong>5、案例五</strong><br />
+代码如下：
+<img src="/image/gcdcode05.png" alt="案例五代码" title="案例五代码示例图" />
+控制台输出 1  4 （1和4顺序不一定）<br /></p>
+
+<p>如图所示：
+<img src="/image/gcd05.png" alt="案例五" title="案例五示例图" /></p>
+
+<p>过程描述和解析：</p>
+<blockquote>
+
+  <p>1.【异步线程、任务4、死循环、任务5】加入到了Main Queue</p>
+  <ul>
+    <li>2.【任务1、同步线程、任务3】加入到Global Queue异步线程</li>
+    <li>3.第一就是异步线程，任务4不用等待，所以结果任务1和任务4顺序不一定。</li>
+    <li>4.任务4完成后，程序进入死循环，Mian Queue阻塞，但是加入到Global Queue的异步线程不受影响，继续任务1后面的同步线程，同步线程中，将任务2加入主线程，并且，任务3等待任务2完成以后才能执行。这时的主线程已经被死循环阻塞了。所以任务2无法执行，当然任务3无法执行，在死循环后的任务5是无法执行的，最终只能得到1和4顺序不定的结果，并且程序陷入死循环。</li>
+  </ul>
+</blockquote>
+
+<p>案例总结： <br />
+    通过案例可以发现，在案例三开始，是否死锁以及整个的执行流程不在简单，这五个案例就意在展示GCD的问题：如果想要设置线程间的依赖关系，那就需要嵌套，如果嵌套就会导致一些复杂的事情发生，这应该就是GCD的一个非常明显的缺陷之一。当然，NSOperation 为我们提供了很方便设置依赖关系的解决方案。</p>
+
+<h3 id="nsoperationnsoperationqueue-br">四、NSOperation和NSOperationQueue <br /></h3>
+<p><strong>1、NSOperation基础</strong><br />
+NSOperation是一个抽象类，我们需要继承它并且实现我们的子类。<br />
+实现步骤：</p>
+<blockquote>
+
+  <ul>
+    <li>1.先将需要执行的操作封装到NSOperation对象中。</li>
+    <li>2.然后将NSOperation对象添加到NSOperationQueue中</li>
+    <li>3.系统会自动将NSOperation中封装的操作放在一条线程中执行。<br />
+在此过程中，我们根本不用考虑线程的生命周期，同步，加锁的问题。</li>
+  </ul>
+</blockquote>
+
+<p><strong>2、NSOperation使用</strong><br />
+默认情况下，NSOperation并不具备封装操作的能力，必须使用它的子类，NSOperation子类的方式有3种：</p>
+<blockquote>
+
+  <p>1&gt;.NSInvocationOperation<br />
+2&gt;.NSBlockOperation <br />
+3&gt;.自定义子类继承NSOperation，实现内部相应的方法</p>
+</blockquote>
+
+<p>2.1 NSInvocationOperation<br />
+NSInvocationOperation: 我们可以通过object和selector非常方便的创建一个NSInvocationOperation，这是一个非常动态和灵活的方式，假设我们已经有了一个现成的方法，这个方法中的代码证号就是我们需要执行的任务，那么我们就可以在不修改任何现有代码的情况下，通过方法所在的对象和这个现有的方法直接创建一个NSInvocationOperation。<br />
+步骤：</p>
+<blockquote>
+
+  <ul>
+    <li>1.初始化一个NSInvocationOperation对象，它是一个基于对象和selector来创建操作。</li>
+    <li>2.调用start方法，紧接着会马上执行封装好的操作，也就是会调用self的runStart:方法，并且将@”xxx”作为方法参数。<br />
+注意：默认情况下，调用了start方法后并不会开一条新的线程去执行操作，而是在当前线程同步执行操作。只有将operation放到NSOperationQueue中，才会异步执行操作。</li>
+  </ul>
+</blockquote>
+
+<p>2.2 NSBlockOperation<br />
+NSBlockOperation : 我们可以使用NSBlockOperation来并发执行一个或多个block，只有当一个NSBlockOperation所关联的所有block都执行完毕时，这个NSBlockOperation才算执行完成，有点类似Dispatch_group。</p>
+
+<p>2.3 自定义子类继承NSOperation<br />
+自定义NSOperation： 如果NSInvocationOperation和NSBlockOperation不能满足需求，我们可以直接新建子类继承NSOperation，并添加任何需要执行的操作。如果只是简单的（非并发）自定义NSOperation，只需要重载<code>-(void)main</code>这个方法，在这个方法中添加需要执行的操作。</p>
+
+<p><strong>3、NSOperation特性</strong><br /></p>
+<ul>
+  <li>1.支持在operation之前建立依赖关系，只有当一个operation所依赖的所有operation都执行完成时，这个operation才能开始执行。</li>
+  <li>2.支持一个可选的completion block ，这个block将会在operation的主任务执行完成时调用。</li>
+  <li>3.支持通过kvo来观察operation执行状态的变化。</li>
+  <li>4.支持设置执行的优先级，从而影响operation之间的相对执行顺序。</li>
+  <li>5.支持取消操作，可以允许我们停止正在执行的operation。</li>
+</ul>
+
+<p><strong>4、并发和非并发</strong><br />
+默认情况下NSOperation是非并发的。就是只重载<code>-(void)main</code>这个方法。即整个operation就是当前的线程中以阻塞的形式执行的，当operation的main函数执行完毕之后，程序的控制权返回到主的main函数中，这样的operation跟普通的函数调用没什么区别。<br /></p>
+
+<p>并发的operation：我们需要重载 start，isAsynchronous，isExecuting，isFinished 四个函数，同时还最好在start和main的实现中支持cancel操作。为什么证明麻烦呢？因为对于一个并发的operation，调用者知道它什么时候开始，却不知道它什么时候结束。在NSOperation的体系下，是通过kvo检测isExecuting和isFinished这几个变量，来检测operation的完成状态的。<br /></p>
+
+<p>总结：单独使用NSOperation发挥不了多大的作用，还需要我们手动监视operation变量，可以看出NSOperation本身确实没有做什么工作，所以就需要NSOperationQueue去配合实现。</p>
+
+<p><strong>5、NSOperationQueue</strong><br />
+NSOperationQueue是一个专门用来执行NSOperation的队列，在OS X10.6之后，把一个NSOperation放到NSOperationQueue中，queue会忽略isAsynchronous变量，总是会把operation放到后台线程中执行。这样不管operation是不是异步的，queue的执行都不会造成主线程的阻塞。使用Queue可以很方便地进行并发操作，并且帮助我们完成大部分的监视operation是否完成的操作。<br /></p>
+
+<p>除此之外，NSOperationQueue还有几个强大的特性：<br />
+5.1 Dependency <br />
+NSOperation可以通过addDependency来依赖其他的operation完成，如果有很多复杂的operation，我们可以形成他们之前的依赖关系图，来实现复杂的同步操作。</p>
+
+<p>5.2 Cancellation<br />
+NSOperation 有如下几种的运行状态：</p>
+<blockquote>
+
+  <ul>
+    <li>Pending</li>
+    <li>Ready</li>
+    <li>Executing</li>
+    <li>Finished</li>
+    <li>Canceled</li>
+  </ul>
+</blockquote>
+
+<p>除了Finished状态外，其他状态均可以转换成Canceled状态。当NSOperation支持cancel操作时，NSOperationQueue可以使用cancelAllOperation来对所有的operation执行cancel操作。不过cancel的效果还是取决于NSOperation中的代码怎么写。比如 对于数据库的某些操作线程来说，cancel可能会意味着你需要把数据恢复到最原始的状态。</p>
+
+<p>5.3 maxConcurrentOperationCount
+默认的最大并发operation数量是由系统当前的运行情况决定的，我们也可以强制指定一个固定的并发数量。</p>
+
+<p>5.4 Queue的优先级
+NSOperationQueue 可以使用queuePriority属性设置优先级，具体的优先级有下面几种:</p>
+<blockquote>
+
+  <ul>
+    <li><code>NSOperationQueuePriorityVeryLow = -8,</code></li>
+    <li><code>NSOperationQueuePriorityLow = -4,</code></li>
+    <li><code>NSOperationQueuePriorityNormal = 0,</code></li>
+    <li><code>NSOperationQueuePriorityHigh = 4,</code></li>
+    <li><code>NSOperationQueuePriorityVeryHigh = 8</code><br />
+在queue中优先级越高的会先执行。</li>
+  </ul>
+</blockquote>
+
+<p>注意1： 尽管系统会尽量使得优先级高的任务先执行，不过并不能确保优先级高的任务一定会先于优先级低的任务执行，即优先级并不能保证任务的执行先后顺序。要让一个任务先于另一个任务执行，需要使用设置dependency来实现。</p>
+
+<p>注意2：同NSOperation一样，NSOperationQueue也具有若干QoS选项可供选择。可参考Apple官方文档<a href="https://developer.apple.com/library/content/documentation/Performance/Conceptual/EnergyGuide-iOS/PrioritizeWorkWithQoS.html"> Energy Efficiency Guide for iOS Apps</a> 进行具体配置。</p>
+
+<h3 id="gcd--nsoperation-br">五、 GCD 与 NSOperation 的对比<br /></h3>
+<p>GCD和NSOperation都很强大，他们的不同从以下几个方面说明：</p>
+
+<ul>
+  <li>1.首先明确一点，NSOperationQueue是基于GCD的更高层的封装，从iOS X 10.10开始可以通过设置underlyingQueue来把operation放到已有的dispatch queue中。</li>
+  <li>2.从易用性角度来说，GCD由于采用了C风格的API，在调用上比使用面向对象风格的NSOperation要简单一些。</li>
+  <li>3.从任务的控制性 NSOperation显著好于GCD，和GCD相比支持了Cancel（注：在iOS 8中GCD引入了dispatch_block_cancel和dispatch_block_testcancel，也可以支持cancel操作了），支持任务之间的依赖关系，支持同一队列中任务的优先级设置，同时还可以通过KVO来监控任务的执行情况。这些通过GCD也可以实现，不过需要很多代码，但使用NSOperation显得方便了很多。</li>
+  <li>4.从第三方库的角度，指明的AFNetworking和SDWebImage背后使用的是NSOperation，也从另一方面说明对于需要复杂并发控制的需求，NSOperation是更好的选择（当然也不是绝对的，例如知名的<a href="https://github.com/parse-community/Parse-SDK-iOS-OSX"> Parse SDK </a> 就完全没有使用NSOperation，全部使用了GCD，其中涉及到大量的GCD高级用法，参考陈大神的<a href="https://github.com/ChenYilong/ParseSourceCodeStudy">GCD高级用法</a>）</li>
+</ul>
+
+<h3 id="gcd-br-1">6、GCD相关知识点 <br /></h3>
+<p><strong>1、GCD的队列（dispatch_queue_t）分哪两种类型？</strong><br />
+  1.串行队列Serial Dispatch Queue <br />
+  2.并行队列Concurrent Dispatch Queue</p>
+
+<p><strong>2、如何用GCD同步若干个异步调用？</strong> <br />
+使用Dispatch Group 追加block到Global Group Queue ，这些block如果全部执行完毕，都会执行Main Dispatch Queue中结束处理的block。<br />
+代码如下：<br />
+<code>dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</code><br />
+<code>dispatch_group_t group = dispatch_group_create();</code><br />
+<code>dispatch_group_async(group, queue, ^{ /*加载图片1 */ });</code><br />
+<code>dispatch_group_async(group, queue, ^{ /*加载图片2 */ });</code><br />
+<code>dispatch_group_async(group, queue, ^{ /*加载图片3 */ });</code><br />
+<code>dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        // 合并图片
+});</code></p>
+
+<p><strong>3、dispatch_barrier_async 的作用是什么？</strong><br />
+在并行队列中，为了保持某些任务的顺序，需要等待一些任务完成后才能继续进行，使用barrier来等待之前任务完成，避免数据竞争等问题。<code>dispatch_barrier_async</code>函数会等待追加到 Concurrent Dispatch Queue 并行队列中的操作完毕之后，然后在执行 <code>dispatch_barrier_async</code>函数追加的处理，等<code>dispatch_barrier_async</code>追加的处理执行结束之后，Concurrent Dispatch Queue才恢复之前的动作继续执行。</p>
+
+<p>注意：使用<code>dispatch_barrier_async</code>，该函数只能搭配自定义并行队列<code>dispatch_queue_t</code>，不能使用<code>dispatch_get_global_queue</code>，否则<code>dispatch_barrier_async</code>的作用和 <code>dispatch_async</code>的作用一模一样。<br />
+  1.必须是我们自己创建的队列<br />
+  2.并且该队列必须是并行队列</p>
+
+<p><strong>4、苹果为什么要废弃<code>dispatch_get_current_queue</code>?</strong> <br /></p>
+
+<p><code>dispatch_get_current_queue</code> 容易造成死锁</p>
+
+<hr />
+<p>参考资料：<br />
+<a href="https://github.com/ChenYilong/iOSInterviewQuestions/blob/master/01%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88/%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88%EF%BC%88%E4%B8%8A%EF%BC%89.md#14-synthesize%E5%90%88%E6%88%90%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E7%9A%84%E8%A7%84%E5%88%99%E6%98%AF%E4%BB%80%E4%B9%88%E5%81%87%E5%A6%82property%E5%90%8D%E4%B8%BAfoo%E5%AD%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%90%8D%E4%B8%BA_foo%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E9%82%A3%E4%B9%88%E8%BF%98%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%90%88%E6%88%90%E6%96%B0%E5%8F%98%E9%87%8F%E4%B9%88">@iOS程序犭袁的Git分享</a> <br />
+<a href="https://hit-alibaba.github.io/interview/iOS/Cocoa-Touch/Multithreading.html">@iOSGit资料</a></p>
+
+  </section>
+</article>
+
+<section class="read-more">
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">最近的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2016/12/my-frist-blog/" title="link to 2017新的开始">2017新的开始</a></h2>
+       <p class="excerpt">  前前后后折腾了很多的博客，但是都感觉到最后没有了毅力和精力去打理，一直想自己搭建一个网站自己写属于自己的博客，但是都由于种种原因一直搁浅，在2017年来临之际，我决定自己要重新开始了，做过了三年的iOS开发，开发项目，写代码，很多的知识点都写在印象笔记或者别的地方，有时间找也找不到，新的开始，从这里起航…2016年马上就要过年了，北漂的日子满满的一年半多了，这一年找到工作，上了班，正式的开始我的北漂生活，这一年有辛酸也有快乐，对于做技术的我来说北京确实是一个牛人居多的地方，这里的生活方...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2016-12-30 09:32:24 +0800" class="post-list__meta--date date">2016-12-30</time> &#8226; <span class="post-list__meta--tags tags">随记杂谈集</span><a class="btn-border-small" href=/2016/12/my-frist-blog/>继续阅读</a></div>
+   </div>
+   
+   
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">更早的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2016/09/iOS-block-Note/" title="link to 基础篇-Block">基础篇-Block</a></h2>
+       <p class="excerpt">  一个众所周知的概念： Block就是Objective-C 对于闭包的实现。一、iOS中内存相关1、iOS内存分区  栈区（stack）          *1.由系统自动分配，一般存储函数参数值，局部变量等。*2.由编译器自动创建和释放，一旦出了作用域就会被销毁，不需要程序员管理栈区变量内存。*3.操作方式类似于数据结构中的栈，即后进先出，先进后出原则。*4.栈区地址从高到低分配。        堆区（heap）          *1.一般由程序员申请并指明大小，最终需要由程序员释...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2016-09-09 22:12:24 +0800" class="post-list__meta--date date">2016-09-09</time> &#8226; <span class="post-list__meta--tags tags">Objective-C回顾温习集</span><a class="btn-border-small" href=/2016/09/iOS-block-Note/>继续阅读</a></div>
+   </div>
+   
+</section>
+
+<section class="post-comments">
+  
+    <div id="disqus_thread"></div>
+    <script>
+    
+    var disqus_config = function () {
+        this.page.url = "https://shunzhitang.github.io/2016/10/iOS-gcd-Note/";
+        this.page.identifier = "/2016/10/iOS-gcd-Note/";
+    };
+
+    var disqus_shortname = 'Tangfeng';
+    
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>要查看<a href="http://disqus.com/?ref_noscript"> Disqus </a>评论，请启用 JavaScript</noscript>
+    
+  
+  
+  
+  
+</section>
+
+
+            <section class="footer">
+    <footer>
+    	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
+        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2017-05-09 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
+        <span class="footer__copyright">本站由 <a href="https://github.com/ShunzhiTang">@tangfeng</a> 创建，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题，您可以在 GitHub 找到<a href="https://github.com/onevcat/OneV-s-Den">本站源码</a> - &copy; 2017</span>
+    </footer>
+</section>
+
+        </div>
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script type="text/javascript" src="/js/main.js"></script>
+
+
+
+    
+  </body>
+
+</html>
