@@ -276,7 +276,7 @@ GCD和NSOperation都很强大，他们的不同从以下几个方面说明：
 - 4.从第三方库的角度，指明的AFNetworking和SDWebImage背后使用的是NSOperation，也从另一方面说明对于需要复杂并发控制的需求，NSOperation是更好的选择（当然也不是绝对的，例如知名的[ Parse SDK ](https://github.com/parse-community/Parse-SDK-iOS-OSX) 就完全没有使用NSOperation，全部使用了GCD，其中涉及到大量的GCD高级用法，参考陈大神的[GCD高级用法](https://github.com/ChenYilong/ParseSourceCodeStudy)）
 
 
-### 6、GCD相关知识点 <br>
+### 六、GCD相关知识点 <br>
 **1、GCD的队列（dispatch_queue_t）分哪两种类型？**<br>
 &emsp;&emsp;1.串行队列Serial Dispatch Queue <br>
 &emsp;&emsp;2.并行队列Concurrent Dispatch Queue
