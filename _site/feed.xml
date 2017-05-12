@@ -5,8 +5,8 @@
     <description>嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</description>
     <link>https://shunzhitang.github.io/</link>
     <atom:link href="https://shunzhitang.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 11 May 2017 18:37:57 +0800</pubDate>
-    <lastBuildDate>Thu, 11 May 2017 18:37:57 +0800</lastBuildDate>
+    <pubDate>Fri, 12 May 2017 19:16:43 +0800</pubDate>
+    <lastBuildDate>Fri, 12 May 2017 19:16:43 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -44,6 +44,450 @@
         <guid isPermaLink="true">https://shunzhitang.github.io/2017/01/my-frist-blog/</guid>
         
         <category>随记杂谈集</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>基础篇-设计模式</title>
+        <description>&lt;blockquote&gt;
+
+  &lt;p&gt;设计模式的功能在软件设计当中是为了解决一些重复的公共问题，它们是一些模板来帮助你更容易书写代码和复用你的代码。它们还可以帮助你创建低耦合的代码，你可以轻松的修改和替换其中的组件。&lt;br /&gt;
+在iOS中，常见的就是Cocoa中的设计模式：&lt;br /&gt;&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;创建（Creational）：单例（Singleton）和抽象工厂（Abstract Factory）&lt;/li&gt;
+    &lt;li&gt;结构（Structural）：MVC，装饰器（Decorator），适配器（Adapter），外观（Facade）和复合器（Composite）&lt;/li&gt;
+    &lt;li&gt;行为（Behavioral）：观察者（Observer），备忘录（Memento），责任链（Chain of Responsibolity）和命令（Command）&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;singleton----br&quot;&gt;一、Singleton - 单例模式 &lt;br /&gt;&lt;/h3&gt;
+&lt;p&gt;单例设计模式：确切的说就是一个类只有一个实例，有一个全局的接口来访问这个实例。当第一次载入的时候，它通常使用延时加载的方法创建一个单一实例。&lt;/p&gt;
+
+&lt;p&gt;简单的OC代码实例代码：&lt;br /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/* Singleton.h */
+  #import &quot;Foundation/Foundation.h&quot;
+  @interface Singleton : NSObject
+  + (Singleton *)sharedInstance;
+  @end
+
+  /* Singleton.m */
+  #import &quot;Singleton.h&quot;
+  static Singleton *_instance = nil;
+
+  @implementation Singleton
+  //第一种实现方式
+  /*
+  + (Singleton *)sharedInstance {
+    if (!_instance) {
+        _instance = [[Singleton alloc] init];
+    }
+    return _instance;
+  }
+  */
+  //第二种实现方式
+  + (Singleton *)sharedInstance {
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;amp;onceToken ,^{
+      if (!_instance) {
+          _instance = [[Singleton alloc] init];
+      }
+
+      });
+
+    return _instance;
+  }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Cocoa库本身有很多地方也使用了单例模式，例如&lt;code&gt;[NSNotificationCenter defaultCenter]&lt;/code&gt;,&lt;code&gt;[UIColor redColor]&lt;/code&gt;,&lt;code&gt;[NSUserDefaults standardUserDefaults]&lt;/code&gt;等等，一般Cocoa中shared或者default开头的类方法都是单例模式的方法。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;这种写法的优点就是可以延迟加载，按需分配内存以节省开销&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;但是上述的第一种写法并不是一个线程安全的写法，比如两个或者多个线程并发的调用&lt;code&gt;sharedInstance&lt;/code&gt;这个方法，有可能就会有多个实例。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;怎么解决线程安全的问题呢？我们可以使用 @synchronized 进行加锁，代码如下:&lt;br /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;/* Singleton.h */
+  #import &quot;Foundation/Foundation.h&quot;
+  @interface Singleton : NSObject
+  + (Singleton *)sharedInstance;
+  @end
+
+  /* Singleton.m */
+  #import &quot;Singleton.h&quot;
+  static Singleton *_instance = nil;
+
+  @implementation Singleton
+  //第一种实现方式
+  /*
+  + (Singleton *)sharedInstance {
+  // 加锁
+  @synchronized(self){
+    if (!_instance) {
+        _instance = [[Singleton alloc] init];
+    }
+  }
+    return _instance;
+  }
+  */
+  //第二种实现方式
+  + (Singleton *)sharedInstance {
+
+    static dispatch_once_t onceToken;
+    //这种方式已经保证了线程的安全，所以不需要加锁。
+    dispatch_once(&amp;amp;onceToken ,^{
+
+      if (!_instance) {
+          _instance = [[Singleton alloc] init];
+      }
+
+  });
+
+    return _instance;
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;分析：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;第一种这种写法也是懒加载不过虽然保证了线程安全，但是由于锁的存在，当在访问多线程是性能会降低。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;第二种方法使用GCD的dispatch_once方法，首先保证了线程的安全性，其次很好的满足了静态分析器的要求，GCD可以确保以更快的方式完成这些检测，它可以保证block中的代码在任何线程通过dispatch_once调用之前被执行，但它不会强制每次调用这个函数让代码进行同步控制。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;factory&quot;&gt;二、工厂模式（Factory）&lt;/h3&gt;
+&lt;p&gt;工厂模式： 本质上是使用方法简化类的选择和初始化过程。&lt;/p&gt;
+
+&lt;p&gt;下面是一个简单的工厂模式的例子：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;//
+//  OperationFactory.m
+//  FactoryPattern
+
+#import &quot;OperationFactory.h&quot;
+#import &quot;Operation.h&quot;
+#import &quot;OperationAdd.h&quot;
+#import &quot;OperationSub.h&quot;
+#import &quot;OperationMul.h&quot;
+#import &quot;OperationDiv.h&quot;
+
+@implementation OperationFactory
+
++ (Operation *) createOperat:(char)operate{
+    Operation *oper = nil;
+    switch (operate) {
+        case '+':
+        {
+            oper = [[OperationAdd alloc] init];
+            break;
+        }
+        case '-':
+        {
+            oper = [[OperationSub alloc] init];
+            break;
+        }
+        case '*':
+        {
+            oper = [[OperationMul alloc] init];
+            break;
+        }
+        case '/':
+        {
+            oper = [[OperationDiv alloc] init];
+            break;
+        }
+        default:
+            break;
+    }
+    return oper;
+}
+@end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;由于Objective-C本身的动态特性，还可以反射来改写：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@implementation OperationFactory
++ (Operation *) createOperat:(NSString *)operate{
+    Operation *oper = nil;
+    Class class = NSClassFromString(operate);
+    oper = [(Operation *)[class alloc] init];
+    if ([oper respondsToSelector:@selector(getResult)]) {
+        [oper getResult];
+    }
+    return oper;
+}
+@end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用时，可以传入类名，来获取对应类的对象：&lt;br /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Operation *oper = [OperationFactory createOperat: @&quot;OperationAdd&quot;];
+oper.numberA = 10;
+oper.numberB = 20;
+NSLog(@&quot;%f&quot;, oper.getResult);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;总结：iOS中的工程模式就是利用OC语言的特性“动态”来创建不同的对象。&lt;/p&gt;
+
+&lt;h3 id=&quot;delegatebr&quot;&gt;三、委托模式（Delegate）&lt;br /&gt;&lt;/h3&gt;
+&lt;p&gt;委托模式即是代理模式&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;在委托模式中，有两个对象参与处理同一请求，接受请求的对象将委托给另一个对象处理。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;代码示例：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@protocol AClssDelegate &amp;lt;NSObject&amp;gt;
+- (void)print;
+@end
+
+
+@interface AClass : NSObject&amp;lt;AClssDelegate&amp;gt;
+@property （nonatomic ,weak） id&amp;lt;AClssDelegate&amp;gt; delegate;
+@end
+
+@implementation AClass
+
+-(void)sayHello {
+  // 这里一般需要判断
+    [self.delegate print];
+}
+
+-(void)print {
+    NSLog(@&quot;Do Print&quot;);
+}
+@end
+
+// 使用 AClass
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        AClass * a = [AClass new];
+        a.delegate = a;
+        [a sayHello];
+    }
+    return 0;
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;delegate的使用：&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;1.定义protocol和protocol中需要委托出去的方法。&lt;/li&gt;
+    &lt;li&gt;2.定义变量id&lt;xxxProtocol&gt; delegate，用来设置委托对象。&lt;/xxxProtocol&gt;&lt;/li&gt;
+    &lt;li&gt;3.在委托的对象中，配置协议，遵守协议，设置delegate = self(遵守协议的对象)，并实现协议方法。&lt;/li&gt;
+    &lt;li&gt;4.在合适的地方调用 [delegate protocolMethod] 让委托对象工作。&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;observer&quot;&gt;四、观察者模式 (Observer)&lt;/h3&gt;
+&lt;p&gt;在观察者模式中，当状态发生改变的时候，一个对象会通知另一个对象。这个对象不需要知道另一个对象发生了什么改变。它通常需要一个观察者（observer）注册跟踪另外一个对象的状态。当状态发生改变的时候，所有的观察者对象都会被通知改变。&lt;/p&gt;
+
+&lt;p&gt;Cocoa有两个常用的方法来执行观察者模式：NSNotification和Key-Value Observing（KVO）。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.1 NSNotification&lt;/strong&gt;&lt;br /&gt;
+NSNotification 基于Cocoa自己的消息中心组件NSNotificationCenter 实现。观察者需要统一在消息中心注册，说明自己要观察那些值得变化。注册代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[[NSNotificationCenter defaultCenter] addObserver:self
+                         selector:@selector(methodName:)
+                             name: @&quot;notificationName&quot;
+                           object:nil];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;上面的函数表明把自身注册成“notificationName”消息的观察者，当有消息时，会调用自己的”methodName:”方法。&lt;/p&gt;
+
+&lt;p&gt;消息发送者使用类似下面的函数发送消息：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[[NSNotificationCenter defaultCenter] postNotificationName:@&quot;notificationName&quot;
+                                    object:nil
+                                  userInfo:nil];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;注意点： 在使用NSNotification的时候一定要记得在适当的时间移除通知，&lt;code&gt;[[NSNotificationCenter defaultCenter] removerObserver:self];&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.2 键 – 值 观察 (Key-Value Observing KVO)&lt;/strong&gt;&lt;br /&gt;
+一个对象的任何一个特别的属性改变后都可以请求一个通知。在KVO中是允许一个对象观察一个属性的变化。
+KVO的实现依赖Objective-C本身强大的KVC（Key Value Coding）特性，可以实现对于某个属性变化的动态监测。&lt;/p&gt;
+
+&lt;p&gt;实例代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// Book类
+@interface Book : NSObject
+
+@property NSString *name;
+@property CGFloat price;
+
+@end
+
+// AClass类
+@class Book;
+@interface AClass : NSObject
+
+@property (strong) Book *book;
+
+@end
+
+@implementation AClass
+
+- (id)init:(Book *)theBook {
+    if(self = [super init]){
+        self.book = theBook;
+        [self.book addObserver:self forKeyPath:@&quot;price&quot; options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew context:nil];
+    }
+    return self;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context{
+    if([keyPath isEqual:@&quot;price&quot;]){
+        NSLog(@&quot;------price is changed------&quot;);
+        NSLog(@&quot;old price is %@&quot;,[change objectForKey:@&quot;old&quot;]);
+        NSLog(@&quot;new price is %@&quot;,[change objectForKey:@&quot;new&quot;]);
+    }
+}
+
+- (void)dealloc{
+    [self.book removeObserver:self forKeyPath:@&quot;price&quot;];
+}
+@end
+
+// 使用 KVO
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        Book *aBook = [Book new];
+        aBook.price = 10.9;
+        AClass * a = [[AClass alloc] init:aBook];
+        aBook.price = 11; // 输出 price is changed
+    }
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;KVO使用步骤：&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;1.通过&lt;code&gt;addObserver: forKeyPath: options: context:&lt;/code&gt;为被监听的对象（它通常是数据模型）注册监听器。&lt;/li&gt;
+    &lt;li&gt;2.(回调监听)重写监听器的&lt;code&gt;observeValueForKeyPath: ofObject: change: context:&lt;/code&gt;方法&lt;/li&gt;
+    &lt;li&gt;3.删除指定key路径的监听器 ：&lt;code&gt;removeObserver: forKeyPath、removeObserver: forKeyPath: context:&lt;/code&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;作用： KVO其实是一种观察者模式，利用它可以很容易实现视图组件和数据模型的分离，当数据模型的属性值改变之后作为监听器的视图组件就会被触发，激发时就会回调监听器本身。在ObjC中要实现KVO则必须实现NSKeyValueObServing协议，不过幸运的是NSObject已经实现了该协议，因此几乎所有的ObjC对象都可以使用KVO。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;键值编码KVC&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Key Value Coding (简称KVC)：利用字符串方法去动态控制一个对象属性。KVC的操作方法由NSKeyValueCoding协议提供，而NSObject就实现了这个协议，也就是说Objc中几乎所有的对象都支持KVC操作，常用的KVC操作如下：&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;动态设置 ：setValue:属性值forKey:属性名（用于简单路径）、setValue:属性值forKeyPath:属性路径（用于复合路径，objectName.propertyName）&lt;/li&gt;
+    &lt;li&gt;动态读取：valueForKey:属性名、ValueForPath:属性名（用于复合路径）&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;KVC的查找规则如下：（假设利用KVC对foo进行读取）：&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;如果是动态设置属性，则优先考虑调用setFoo方法，如果没有该方法则优先考虑搜索成员变量_foo，如果仍然不存在则搜索成员变量foo，如果最后仍然没搜索到则会调用这个类的&lt;code&gt;setValue:forUndefinedKey：&lt;/code&gt;方法（注意搜索过程中不管这些方法，成员变量是私有的还是公共的都能正确设置）；&lt;/li&gt;
+    &lt;li&gt;如果是动态读取属性，则优先考虑调用foo方法（属性foo的getter方法），如果没有搜索到则会优先搜索成员变量_foo，如果仍然不存在则搜索成员变量foo，如果最后仍然没有搜索到则会调用这个类的&lt;code&gt;valueforUndefinedKey:&lt;/code&gt;方法（注意搜索过程中不管这些方法，成员变量私有的还是共有的都能正确读取）。&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;简单的KVC以下列形式访问属性：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@property (nonatomic, copy) NSString *personName;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;取值&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;NSString *name = [object valueForKey:@&quot;personName&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;设定：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[object setValue:@&quot;zhangsan&quot; forKey:@&quot;personName&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;值得注意的是这个不仅可以访问作为对象属性，而且也能访问一些标量（例如int和float）和struct（例CGRect）。Foundation框架会为我们自动封装它们，举例来说：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@property (nonatomic) CGFloat height;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;我们可以这样设置它：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[object setValue:@(20) forKey:@&quot;height&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;KVC允许我们用属性的字符串名称来访问属性，字符串在这儿叫做键。&lt;/p&gt;
+
+&lt;p&gt;另外一些设计模式请参考&lt;a href=&quot;http://www.superqq.com/blog/2015/06/16/ios-she-ji-mo-shi-xi-lie-:decorator-zhuang-shi-qi-mo-shi/&quot;&gt;《刚刚在线设计模式详解》&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;五、知识点&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;1、addObserver:forKeyPath:options:context:各个参数的作用分
+别是什么，observer中需要实现哪个方法才能获得KVO回调？&lt;/strong&gt; &lt;br /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// 添加键值观察
+/*
+1 观察者，负责处理监听事件的对象
+2 观察的属性
+3 观察的选项
+4 上下文
+*/
+[self.person addObserver:self forKeyPath:@&quot;name&quot; options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:@&quot;Person Name&quot;];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Observer中需要实现下列方法：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// 所有的 kvo 监听到事件，都会调用此方法
+/*
+ 1. 观察的属性
+ 2. 观察的对象
+ 3. change 属性变化字典（新／旧）
+ 4. 上下文，与监听的时候传递的一致
+ */
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;2、如何手动触发一个value的KVO&lt;/strong&gt; &lt;br /&gt;
+所谓的“手动触发”是区别于“自动触发”：&lt;br /&gt;
+自动触发是指类似于这种场景：在注册KVO之前设置一个初始值，注册之后，设置一个不一样的值，就可以触发了。&lt;/p&gt;
+
+&lt;p&gt;自动触发KVO的原理：&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;键值观察通知依赖于NSObject的两个方法：&lt;code&gt;willChangeValueForKey:&lt;/code&gt; 和&lt;code&gt;didChangevlueForKey:&lt;/code&gt;。在一个被观察属性发生改变之前，&lt;code&gt;willChangeValueForKey:&lt;/code&gt;一定会被调用，这就会记录旧的值，而当发生改变后，&lt;code&gt;observeValueForKey:ofObject:change:context:&lt;/code&gt;会被调用，继而&lt;code&gt;didChangevlueForKey:&lt;/code&gt;也会被调用。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;如果可以手动实现这些调用，就可以实现“手动触发”了。&lt;br /&gt;
+手动触发一个kvo，这个value是表示时间的self.now ,代码如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;@property (nonatomic, strong) NSDate *now;
+- (void)viewDidLoad {
+   [super viewDidLoad];
+   _now = [NSDate date];
+   [self addObserver:self forKeyPath:@&quot;now&quot; options:NSKeyValueObservingOptionNew context:nil];
+   NSLog(@&quot;1&quot;);
+   [self willChangeValueForKey:@&quot;now&quot;]; // “手动触发self.now的KVO”，必写。
+   NSLog(@&quot;2&quot;);
+   [self didChangeValueForKey:@&quot;now&quot;]; // “手动触发self.now的KVO”，必写。
+   NSLog(@&quot;4&quot;);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;3、 KVC的keyPath中的集合运算符如何使用？&lt;/strong&gt; &lt;br /&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;1.必须用在集合对象上或普通对象的集合属性上&lt;/li&gt;
+  &lt;li&gt;2.简单集合运算符有@avg ，@count ，@max ，@min ，@sum&lt;/li&gt;
+  &lt;li&gt;3.格式@“@sum.age”或@“集合属性.@max.age”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;参考资料：&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://hit-alibaba.github.io/interview/iOS/Cocoa-Touch/Event-Handling.html&quot;&gt;@iOSGit资料&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;http://www.superqq.com/blog/2015/06/16/ios-she-ji-mo-shi-xi-lie-:decorator-zhuang-shi-qi-mo-shi/&quot;&gt;刚刚在线设计模式详解&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://github.com/ChenYilong/iOSInterviewQuestions/blob/master/01%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88/%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88%EF%BC%88%E4%B8%8A%EF%BC%89.md#14-synthesize%E5%90%88%E6%88%90%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E7%9A%84%E8%A7%84%E5%88%99%E6%98%AF%E4%BB%80%E4%B9%88%E5%81%87%E5%A6%82property%E5%90%8D%E4%B8%BAfoo%E5%AD%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%90%8D%E4%B8%BA_foo%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E9%82%A3%E4%B9%88%E8%BF%98%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%90%88%E6%88%90%E6%96%B0%E5%8F%98%E9%87%8F%E4%B9%88&quot;&gt;@iOS程序犭袁的Git分享&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sun, 08 Jan 2017 22:20:24 +0800</pubDate>
+        <link>https://shunzhitang.github.io/2017/01/iOS-designPatterns-Note/</link>
+        <guid isPermaLink="true">https://shunzhitang.github.io/2017/01/iOS-designPatterns-Note/</guid>
+        
+        <category>Objective-C回顾温习集</category>
         
         
       </item>

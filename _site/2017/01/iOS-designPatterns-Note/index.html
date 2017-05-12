@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <title>基础篇-设计模式</title>
+  <meta name="description" content="  设计模式的功能在软件设计当中是为了解决一些重复的公共问题，它们是一些模板来帮助你更容易书写代码和复用你的代码。它们还可以帮助你创建低耦合的代码，你可以轻松的修改和替换其中的组件。在iOS中，常见的就是Cocoa中的设计模式：      创建（Creational）：单例（Singleton）和抽象工厂（Abs...">
+  <meta name="author" content="Wei Wang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="基础篇-设计模式">
+  <meta name="twitter:description" content="  设计模式的功能在软件设计当中是为了解决一些重复的公共问题，它们是一些模板来帮助你更容易书写代码和复用你的代码。它们还可以帮助你创建低耦合的代码，你可以轻松的修改和替换其中的组件。在iOS中，常见的就是Cocoa中的设计模式：      创建（Creational）：单例（Singleton）和抽象工厂（Abs...">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="基础篇-设计模式">
+  <meta property="og:description" content="  设计模式的功能在软件设计当中是为了解决一些重复的公共问题，它们是一些模板来帮助你更容易书写代码和复用你的代码。它们还可以帮助你创建低耦合的代码，你可以轻松的修改和替换其中的组件。在iOS中，常见的就是Cocoa中的设计模式：      创建（Creational）：单例（Singleton）和抽象工厂（Abs...">
+
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="https://shunzhitang.github.io/2017/01/iOS-designPatterns-Note/">
+  <link rel="alternate" type="application/rss+xml" title="枫" href="https://shunzhitang.github.io/feed.xml">
+
+  <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+
+</head>
+
+
+  <body>
+
+    <span class="mobile btn-mobile-menu">
+        <i class="fa fa-list btn-mobile-menu__icon"></i>
+        <i class="fa fa-angle-up btn-mobile-close__icon hidden"></i>
+    </span>
+    
+    <header class="panel-cover panel-cover--collapsed" style="background-image: url('/assets/images/background-cover.jpg')">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+
+        <a href="/#blog" title="前往 枫 的主页" class="blog-button"><img src="/assets/images/avatar.jpg" width="80" alt="枫 logo" class="panel-cover__logo logo" /></a>
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for 枫" class="blog-button">枫</a></h1>
+        
+        <span class="panel-cover__subtitle panel-subtitle">荣辱不惊，闲看庭前花开花落</span>
+        
+        <hr class="panel-cover__divider" />
+        <p class="panel-cover__description">嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" />
+        
+        
+        <p class="panel-cover__description"><a href="https://shunzhitang.github.io" target="_blank">每一次相遇都值得珍惜 ^_^</a></p>
+        
+        
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="访问博客" class="blog-button">博客</a></li>
+                
+                  <li class="navigation__item"><a href="https://shunzhitang.github.io" target="_blank" title="about">关于</a></li>
+                
+              </ul>
+            </nav>
+          </div>
+          
+          <div><nav class="cover-navigation navigation--social">
+  <ul class="navigation">
+
+  
+  <!-- Weibo -->
+  <li class="navigation__item">
+    <a href="http://weibo.com/5721825289" title="@5721825289 的微博" target="_blank">
+      <i class='social fa fa-weibo'></i>
+      <span class="label">Weibo</span>
+    </a>
+  </li>
+  
+
+  
+  <!-- Github -->
+  <li class="navigation__item">
+    <a href="https://github.com/ShunzhiTang" title="@ShunzhiTang 的 Github" target="_blank">
+      <i class='social fa fa-github'></i>
+      <span class="label">Github</span>
+    </a>
+  </li>
+  
+  
+  
+  <!-- Twitter -->
+  <li class="navigation__item">
+    <a href="http://twitter.com/tangfengdream" title="@tangfengdream" target="_blank">
+      <i class='social fa fa-twitter'></i>
+      <span class="label">Twitter</span>
+    </a>
+  </li>
+  
+
+  
+
+  <!-- RSS -->
+  <li class="navigation__item">
+    <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+      <i class='social fa fa-rss'></i>
+      <span class="label">RSS</span>
+    </a>
+  </li>
+
+  
+
+  </ul>
+</nav>
+</div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-slate"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="2017-01-08 22:20:24 +0800" itemprop="datePublished" class="post-meta__date date">2017-01-08</time> &#8226; <span class="post-meta__tags tags">Objective-C回顾温习集</span>
+    </div>
+    <h1 class="post-title">基础篇-设计模式</h1>
+  </header>
+
+  <section class="post">
+    <blockquote>
+
+  <p>设计模式的功能在软件设计当中是为了解决一些重复的公共问题，它们是一些模板来帮助你更容易书写代码和复用你的代码。它们还可以帮助你创建低耦合的代码，你可以轻松的修改和替换其中的组件。<br />
+在iOS中，常见的就是Cocoa中的设计模式：<br /></p>
+  <ul>
+    <li>创建（Creational）：单例（Singleton）和抽象工厂（Abstract Factory）</li>
+    <li>结构（Structural）：MVC，装饰器（Decorator），适配器（Adapter），外观（Facade）和复合器（Composite）</li>
+    <li>行为（Behavioral）：观察者（Observer），备忘录（Memento），责任链（Chain of Responsibolity）和命令（Command）</li>
+  </ul>
+</blockquote>
+
+<h3 id="singleton----br">一、Singleton - 单例模式 <br /></h3>
+<p>单例设计模式：确切的说就是一个类只有一个实例，有一个全局的接口来访问这个实例。当第一次载入的时候，它通常使用延时加载的方法创建一个单一实例。</p>
+
+<p>简单的OC代码实例代码：<br /></p>
+<pre><code>/* Singleton.h */
+  #import "Foundation/Foundation.h"
+  @interface Singleton : NSObject
+  + (Singleton *)sharedInstance;
+  @end
+
+  /* Singleton.m */
+  #import "Singleton.h"
+  static Singleton *_instance = nil;
+
+  @implementation Singleton
+  //第一种实现方式
+  /*
+  + (Singleton *)sharedInstance {
+    if (!_instance) {
+        _instance = [[Singleton alloc] init];
+    }
+    return _instance;
+  }
+  */
+  //第二种实现方式
+  + (Singleton *)sharedInstance {
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken ,^{
+      if (!_instance) {
+          _instance = [[Singleton alloc] init];
+      }
+
+      });
+
+    return _instance;
+  }
+
+</code></pre>
+
+<ul>
+  <li>
+    <p>Cocoa库本身有很多地方也使用了单例模式，例如<code>[NSNotificationCenter defaultCenter]</code>,<code>[UIColor redColor]</code>,<code>[NSUserDefaults standardUserDefaults]</code>等等，一般Cocoa中shared或者default开头的类方法都是单例模式的方法。</p>
+  </li>
+  <li>
+    <p>这种写法的优点就是可以延迟加载，按需分配内存以节省开销</p>
+  </li>
+  <li>
+    <p>但是上述的第一种写法并不是一个线程安全的写法，比如两个或者多个线程并发的调用<code>sharedInstance</code>这个方法，有可能就会有多个实例。</p>
+  </li>
+  <li>
+    <p>怎么解决线程安全的问题呢？我们可以使用 @synchronized 进行加锁，代码如下:<br /></p>
+  </li>
+</ul>
+
+<pre><code>/* Singleton.h */
+  #import "Foundation/Foundation.h"
+  @interface Singleton : NSObject
+  + (Singleton *)sharedInstance;
+  @end
+
+  /* Singleton.m */
+  #import "Singleton.h"
+  static Singleton *_instance = nil;
+
+  @implementation Singleton
+  //第一种实现方式
+  /*
+  + (Singleton *)sharedInstance {
+  // 加锁
+  @synchronized(self){
+    if (!_instance) {
+        _instance = [[Singleton alloc] init];
+    }
+  }
+    return _instance;
+  }
+  */
+  //第二种实现方式
+  + (Singleton *)sharedInstance {
+
+    static dispatch_once_t onceToken;
+    //这种方式已经保证了线程的安全，所以不需要加锁。
+    dispatch_once(&amp;onceToken ,^{
+
+      if (!_instance) {
+          _instance = [[Singleton alloc] init];
+      }
+
+  });
+
+    return _instance;
+  }
+</code></pre>
+
+<p>分析：</p>
+<ul>
+  <li>
+    <p>第一种这种写法也是懒加载不过虽然保证了线程安全，但是由于锁的存在，当在访问多线程是性能会降低。</p>
+  </li>
+  <li>
+    <p>第二种方法使用GCD的dispatch_once方法，首先保证了线程的安全性，其次很好的满足了静态分析器的要求，GCD可以确保以更快的方式完成这些检测，它可以保证block中的代码在任何线程通过dispatch_once调用之前被执行，但它不会强制每次调用这个函数让代码进行同步控制。</p>
+  </li>
+</ul>
+
+<h3 id="factory">二、工厂模式（Factory）</h3>
+<p>工厂模式： 本质上是使用方法简化类的选择和初始化过程。</p>
+
+<p>下面是一个简单的工厂模式的例子：</p>
+<pre><code>//
+//  OperationFactory.m
+//  FactoryPattern
+
+#import "OperationFactory.h"
+#import "Operation.h"
+#import "OperationAdd.h"
+#import "OperationSub.h"
+#import "OperationMul.h"
+#import "OperationDiv.h"
+
+@implementation OperationFactory
+
++ (Operation *) createOperat:(char)operate{
+    Operation *oper = nil;
+    switch (operate) {
+        case '+':
+        {
+            oper = [[OperationAdd alloc] init];
+            break;
+        }
+        case '-':
+        {
+            oper = [[OperationSub alloc] init];
+            break;
+        }
+        case '*':
+        {
+            oper = [[OperationMul alloc] init];
+            break;
+        }
+        case '/':
+        {
+            oper = [[OperationDiv alloc] init];
+            break;
+        }
+        default:
+            break;
+    }
+    return oper;
+}
+@end
+</code></pre>
+
+<p>由于Objective-C本身的动态特性，还可以反射来改写：</p>
+<pre><code>@implementation OperationFactory
++ (Operation *) createOperat:(NSString *)operate{
+    Operation *oper = nil;
+    Class class = NSClassFromString(operate);
+    oper = [(Operation *)[class alloc] init];
+    if ([oper respondsToSelector:@selector(getResult)]) {
+        [oper getResult];
+    }
+    return oper;
+}
+@end
+</code></pre>
+
+<p>使用时，可以传入类名，来获取对应类的对象：<br /></p>
+<pre><code>Operation *oper = [OperationFactory createOperat: @"OperationAdd"];
+oper.numberA = 10;
+oper.numberB = 20;
+NSLog(@"%f", oper.getResult);
+</code></pre>
+
+<p>总结：iOS中的工程模式就是利用OC语言的特性“动态”来创建不同的对象。</p>
+
+<h3 id="delegatebr">三、委托模式（Delegate）<br /></h3>
+<p>委托模式即是代理模式</p>
+<blockquote>
+
+  <p>在委托模式中，有两个对象参与处理同一请求，接受请求的对象将委托给另一个对象处理。</p>
+</blockquote>
+
+<p>代码示例：</p>
+<pre><code>@protocol AClssDelegate &lt;NSObject&gt;
+- (void)print;
+@end
+
+
+@interface AClass : NSObject&lt;AClssDelegate&gt;
+@property （nonatomic ,weak） id&lt;AClssDelegate&gt; delegate;
+@end
+
+@implementation AClass
+
+-(void)sayHello {
+  // 这里一般需要判断
+    [self.delegate print];
+}
+
+-(void)print {
+    NSLog(@"Do Print");
+}
+@end
+
+// 使用 AClass
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        AClass * a = [AClass new];
+        a.delegate = a;
+        [a sayHello];
+    }
+    return 0;
+}
+
+</code></pre>
+
+<p>delegate的使用：</p>
+<blockquote>
+
+  <ul>
+    <li>1.定义protocol和protocol中需要委托出去的方法。</li>
+    <li>2.定义变量id<xxxProtocol> delegate，用来设置委托对象。</xxxProtocol></li>
+    <li>3.在委托的对象中，配置协议，遵守协议，设置delegate = self(遵守协议的对象)，并实现协议方法。</li>
+    <li>4.在合适的地方调用 [delegate protocolMethod] 让委托对象工作。</li>
+  </ul>
+</blockquote>
+
+<h3 id="observer">四、观察者模式 (Observer)</h3>
+<p>在观察者模式中，当状态发生改变的时候，一个对象会通知另一个对象。这个对象不需要知道另一个对象发生了什么改变。它通常需要一个观察者（observer）注册跟踪另外一个对象的状态。当状态发生改变的时候，所有的观察者对象都会被通知改变。</p>
+
+<p>Cocoa有两个常用的方法来执行观察者模式：NSNotification和Key-Value Observing（KVO）。</p>
+
+<p><strong>4.1 NSNotification</strong><br />
+NSNotification 基于Cocoa自己的消息中心组件NSNotificationCenter 实现。观察者需要统一在消息中心注册，说明自己要观察那些值得变化。注册代码如下：</p>
+<pre><code>[[NSNotificationCenter defaultCenter] addObserver:self
+                         selector:@selector(methodName:)
+                             name: @"notificationName"
+                           object:nil];
+</code></pre>
+<p>上面的函数表明把自身注册成“notificationName”消息的观察者，当有消息时，会调用自己的”methodName:”方法。</p>
+
+<p>消息发送者使用类似下面的函数发送消息：</p>
+<pre><code>[[NSNotificationCenter defaultCenter] postNotificationName:@"notificationName"
+                                    object:nil
+                                  userInfo:nil];
+</code></pre>
+
+<p>注意点： 在使用NSNotification的时候一定要记得在适当的时间移除通知，<code>[[NSNotificationCenter defaultCenter] removerObserver:self];</code></p>
+
+<p><strong>4.2 键 – 值 观察 (Key-Value Observing KVO)</strong><br />
+一个对象的任何一个特别的属性改变后都可以请求一个通知。在KVO中是允许一个对象观察一个属性的变化。
+KVO的实现依赖Objective-C本身强大的KVC（Key Value Coding）特性，可以实现对于某个属性变化的动态监测。</p>
+
+<p>实例代码如下：</p>
+<pre><code>// Book类
+@interface Book : NSObject
+
+@property NSString *name;
+@property CGFloat price;
+
+@end
+
+// AClass类
+@class Book;
+@interface AClass : NSObject
+
+@property (strong) Book *book;
+
+@end
+
+@implementation AClass
+
+- (id)init:(Book *)theBook {
+    if(self = [super init]){
+        self.book = theBook;
+        [self.book addObserver:self forKeyPath:@"price" options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew context:nil];
+    }
+    return self;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context{
+    if([keyPath isEqual:@"price"]){
+        NSLog(@"------price is changed------");
+        NSLog(@"old price is %@",[change objectForKey:@"old"]);
+        NSLog(@"new price is %@",[change objectForKey:@"new"]);
+    }
+}
+
+- (void)dealloc{
+    [self.book removeObserver:self forKeyPath:@"price"];
+}
+@end
+
+// 使用 KVO
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        Book *aBook = [Book new];
+        aBook.price = 10.9;
+        AClass * a = [[AClass alloc] init:aBook];
+        aBook.price = 11; // 输出 price is changed
+    }
+    return 0;
+}
+</code></pre>
+<p>KVO使用步骤：</p>
+<blockquote>
+
+  <ul>
+    <li>1.通过<code>addObserver: forKeyPath: options: context:</code>为被监听的对象（它通常是数据模型）注册监听器。</li>
+    <li>2.(回调监听)重写监听器的<code>observeValueForKeyPath: ofObject: change: context:</code>方法</li>
+    <li>3.删除指定key路径的监听器 ：<code>removeObserver: forKeyPath、removeObserver: forKeyPath: context:</code></li>
+  </ul>
+</blockquote>
+
+<p>作用： KVO其实是一种观察者模式，利用它可以很容易实现视图组件和数据模型的分离，当数据模型的属性值改变之后作为监听器的视图组件就会被触发，激发时就会回调监听器本身。在ObjC中要实现KVO则必须实现NSKeyValueObServing协议，不过幸运的是NSObject已经实现了该协议，因此几乎所有的ObjC对象都可以使用KVO。</p>
+
+<p><strong>键值编码KVC</strong><br /></p>
+
+<p>Key Value Coding (简称KVC)：利用字符串方法去动态控制一个对象属性。KVC的操作方法由NSKeyValueCoding协议提供，而NSObject就实现了这个协议，也就是说Objc中几乎所有的对象都支持KVC操作，常用的KVC操作如下：</p>
+<blockquote>
+
+  <ul>
+    <li>动态设置 ：setValue:属性值forKey:属性名（用于简单路径）、setValue:属性值forKeyPath:属性路径（用于复合路径，objectName.propertyName）</li>
+    <li>动态读取：valueForKey:属性名、ValueForPath:属性名（用于复合路径）</li>
+  </ul>
+</blockquote>
+
+<p>KVC的查找规则如下：（假设利用KVC对foo进行读取）：</p>
+<blockquote>
+
+  <ul>
+    <li>如果是动态设置属性，则优先考虑调用setFoo方法，如果没有该方法则优先考虑搜索成员变量_foo，如果仍然不存在则搜索成员变量foo，如果最后仍然没搜索到则会调用这个类的<code>setValue:forUndefinedKey：</code>方法（注意搜索过程中不管这些方法，成员变量是私有的还是公共的都能正确设置）；</li>
+    <li>如果是动态读取属性，则优先考虑调用foo方法（属性foo的getter方法），如果没有搜索到则会优先搜索成员变量_foo，如果仍然不存在则搜索成员变量foo，如果最后仍然没有搜索到则会调用这个类的<code>valueforUndefinedKey:</code>方法（注意搜索过程中不管这些方法，成员变量私有的还是共有的都能正确读取）。</li>
+  </ul>
+</blockquote>
+
+<p>简单的KVC以下列形式访问属性：</p>
+<pre><code>@property (nonatomic, copy) NSString *personName;
+</code></pre>
+<p>取值</p>
+<pre><code>NSString *name = [object valueForKey:@"personName"]
+</code></pre>
+<p>设定：</p>
+<pre><code>[object setValue:@"zhangsan" forKey:@"personName"]
+</code></pre>
+<p>值得注意的是这个不仅可以访问作为对象属性，而且也能访问一些标量（例如int和float）和struct（例CGRect）。Foundation框架会为我们自动封装它们，举例来说：</p>
+<pre><code>@property (nonatomic) CGFloat height;
+</code></pre>
+<p>我们可以这样设置它：</p>
+<pre><code>[object setValue:@(20) forKey:@"height"]
+</code></pre>
+<p>KVC允许我们用属性的字符串名称来访问属性，字符串在这儿叫做键。</p>
+
+<p>另外一些设计模式请参考<a href="http://www.superqq.com/blog/2015/06/16/ios-she-ji-mo-shi-xi-lie-:decorator-zhuang-shi-qi-mo-shi/">《刚刚在线设计模式详解》</a></p>
+
+<h3 id="section">五、知识点</h3>
+<p><strong>1、addObserver:forKeyPath:options:context:各个参数的作用分
+别是什么，observer中需要实现哪个方法才能获得KVO回调？</strong> <br /></p>
+<pre><code>// 添加键值观察
+/*
+1 观察者，负责处理监听事件的对象
+2 观察的属性
+3 观察的选项
+4 上下文
+*/
+[self.person addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:@"Person Name"];
+</code></pre>
+
+<p>Observer中需要实现下列方法：</p>
+<pre><code>// 所有的 kvo 监听到事件，都会调用此方法
+/*
+ 1. 观察的属性
+ 2. 观察的对象
+ 3. change 属性变化字典（新／旧）
+ 4. 上下文，与监听的时候传递的一致
+ */
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
+</code></pre>
+
+<p><strong>2、如何手动触发一个value的KVO</strong> <br />
+所谓的“手动触发”是区别于“自动触发”：<br />
+自动触发是指类似于这种场景：在注册KVO之前设置一个初始值，注册之后，设置一个不一样的值，就可以触发了。</p>
+
+<p>自动触发KVO的原理：</p>
+<blockquote>
+
+  <p>键值观察通知依赖于NSObject的两个方法：<code>willChangeValueForKey:</code> 和<code>didChangevlueForKey:</code>。在一个被观察属性发生改变之前，<code>willChangeValueForKey:</code>一定会被调用，这就会记录旧的值，而当发生改变后，<code>observeValueForKey:ofObject:change:context:</code>会被调用，继而<code>didChangevlueForKey:</code>也会被调用。</p>
+</blockquote>
+
+<p>如果可以手动实现这些调用，就可以实现“手动触发”了。<br />
+手动触发一个kvo，这个value是表示时间的self.now ,代码如下：</p>
+<pre><code>@property (nonatomic, strong) NSDate *now;
+- (void)viewDidLoad {
+   [super viewDidLoad];
+   _now = [NSDate date];
+   [self addObserver:self forKeyPath:@"now" options:NSKeyValueObservingOptionNew context:nil];
+   NSLog(@"1");
+   [self willChangeValueForKey:@"now"]; // “手动触发self.now的KVO”，必写。
+   NSLog(@"2");
+   [self didChangeValueForKey:@"now"]; // “手动触发self.now的KVO”，必写。
+   NSLog(@"4");
+}
+</code></pre>
+
+<p><strong>3、 KVC的keyPath中的集合运算符如何使用？</strong> <br /></p>
+<ul>
+  <li>1.必须用在集合对象上或普通对象的集合属性上</li>
+  <li>2.简单集合运算符有@avg ，@count ，@max ，@min ，@sum</li>
+  <li>3.格式@“@sum.age”或@“集合属性.@max.age”</li>
+</ul>
+
+<hr />
+<p>参考资料：<br /></p>
+
+<p><a href="https://hit-alibaba.github.io/interview/iOS/Cocoa-Touch/Event-Handling.html">@iOSGit资料</a><br />
+<a href="http://www.superqq.com/blog/2015/06/16/ios-she-ji-mo-shi-xi-lie-:decorator-zhuang-shi-qi-mo-shi/">刚刚在线设计模式详解</a><br />
+<a href="https://github.com/ChenYilong/iOSInterviewQuestions/blob/master/01%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88/%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88%EF%BC%88%E4%B8%8A%EF%BC%89.md#14-synthesize%E5%90%88%E6%88%90%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E7%9A%84%E8%A7%84%E5%88%99%E6%98%AF%E4%BB%80%E4%B9%88%E5%81%87%E5%A6%82property%E5%90%8D%E4%B8%BAfoo%E5%AD%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%90%8D%E4%B8%BA_foo%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E9%82%A3%E4%B9%88%E8%BF%98%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%90%88%E6%88%90%E6%96%B0%E5%8F%98%E9%87%8F%E4%B9%88">@iOS程序犭袁的Git分享</a></p>
+
+  </section>
+</article>
+
+<section class="read-more">
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">最近的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2017/01/my-frist-blog/" title="link to 拾起最初的梦想">拾起最初的梦想</a></h2>
+       <p class="excerpt">  热血犹在，确不去行动，是可悲还是堕落。。。感叹过往2017注定是不平凡的一年，这一年我经历了很多，同样的也成长了很多，无论工作、学习、生活都在无时无刻的发生着不可预料的变化，由于今年互联网的寒冬，很多的公司都面临着缺钱的问题而倒闭，这样的事情我同样经历了一次。回想最近的时光，我觉得自己浪费了一些我不该浪费的时间，俗话说“打铁还需自身硬”，作为靠技术吃饭的我，应该真正的闭关修炼了不坚定的意志力我写过博客，但是都没有坚持多久，可能是我太安逸了，觉得能把工作干好就满足了，平时有些时间闲了就打...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2017-01-30 11:32:24 +0800" class="post-list__meta--date date">2017-01-30</time> &#8226; <span class="post-list__meta--tags tags">随记杂谈集</span><a class="btn-border-small" href=/2017/01/my-frist-blog/>继续阅读</a></div>
+   </div>
+   
+   
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">更早的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2016/12/my-frist-blog/" title="link to 2017新的开始">2017新的开始</a></h2>
+       <p class="excerpt">  前前后后折腾了很多的博客，但是都感觉到最后没有了毅力和精力去打理，一直想自己搭建一个网站自己写属于自己的博客，但是都由于种种原因一直搁浅，在2017年来临之际，我决定自己要重新开始了，做过了三年的iOS开发，开发项目，写代码，很多的知识点都写在印象笔记或者别的地方，有时间找也找不到，新的开始，从这里起航…2016年马上就要过年了，北漂的日子满满的一年半多了，这一年找到工作，上了班，正式的开始我的北漂生活，这一年有辛酸也有快乐，对于做技术的我来说北京确实是一个牛人居多的地方，这里的生活方...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2016-12-30 09:32:24 +0800" class="post-list__meta--date date">2016-12-30</time> &#8226; <span class="post-list__meta--tags tags">随记杂谈集</span><a class="btn-border-small" href=/2016/12/my-frist-blog/>继续阅读</a></div>
+   </div>
+   
+</section>
+
+<section class="post-comments">
+  
+    <div id="disqus_thread"></div>
+    <script>
+    
+    var disqus_config = function () {
+        this.page.url = "https://shunzhitang.github.io/2017/01/iOS-designPatterns-Note/";
+        this.page.identifier = "/2017/01/iOS-designPatterns-Note/";
+    };
+
+    var disqus_shortname = 'Tangfeng';
+    
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>要查看<a href="http://disqus.com/?ref_noscript"> Disqus </a>评论，请启用 JavaScript</noscript>
+    
+  
+  
+  
+  
+</section>
+
+
+            <section class="footer">
+    <footer>
+    	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
+        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2017-05-12 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
+        <span class="footer__copyright">本站由 <a href="https://github.com/ShunzhiTang">@tangfeng</a> 创建，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题，您可以在 GitHub 找到<a href="https://github.com/onevcat/OneV-s-Den">本站源码</a> - &copy; 2017</span>
+    </footer>
+</section>
+
+        </div>
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script type="text/javascript" src="/js/main.js"></script>
+
+
+
+    
+  </body>
+
+</html>
