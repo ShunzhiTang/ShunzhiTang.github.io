@@ -5,9 +5,176 @@
     <description>嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</description>
     <link>https://shunzhitang.github.io/</link>
     <atom:link href="https://shunzhitang.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 12 May 2017 19:16:43 +0800</pubDate>
-    <lastBuildDate>Fri, 12 May 2017 19:16:43 +0800</lastBuildDate>
+    <pubDate>Wed, 17 May 2017 11:44:40 +0800</pubDate>
+    <lastBuildDate>Wed, 17 May 2017 11:44:40 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>基础篇-LLDB调试</title>
+        <description>&lt;blockquote&gt;
+
+  &lt;p&gt;LLDB是一个有着REPL的特性和C++，Python插件的开源调试器。LLDB绑定在Xcode内部，存在于主窗口底部的控制台中。调试器允许你在程序运行的特定时机暂停它，你可以查看变量的值，执行自定的指令，并且按照你所以为合适的步骤来操作程序的进展。在iOS的开发中，调试是一个非常重要的功能，有时间不需要重复的运行程序就可以指定我们的调试过程，这时候就需要使用LLDB来实现。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;lldb&quot;&gt;一、LLDB的简单使用&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;1、LLBD的命令使用&lt;/strong&gt;&lt;br /&gt;
+1.help 命令&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;最简单的命令就是help命令，它会列举出所有的命。如果你忘记一个命令是做什么的，或者想知道更多的话，可以通过&lt;code&gt;help &amp;lt;command&amp;gt;&lt;/code&gt;了解更多的细节，例如help print 或者help thread。如果你甚至忘记了help命令是做什么的。可以使用help help。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;2.print&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;LLDB实际上会作前缀匹配，所以你可以使用prin ，pri 或者p。但是你不能使用pr，因为LLDB不能消除和process的歧义。&lt;br /&gt;
+一般情况使用print这个命令，结果中有个$0 ,实际上你可以使用它来指向这个结果。任何以$美元符号开头的东西都是存在于LLDB的命名空间的，他们是为了帮助你进行调试而存在的。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;3.expression&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;expression 不仅会改变调试器中的值，实际上它也会改变程序中的值，这时候继续执行程序，就会替换成改变后的值&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;一般请求下都是使用p来代替print ，e来代替expression&lt;/p&gt;
+
+&lt;p&gt;4.breakpoint 断点&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;所有的调试都是从断点开始的，一般情况我们队breakpoint命令用的不多，而是在Xcode的GUI界面中直接添加断点的。&lt;br /&gt;&lt;/p&gt;
+  &lt;pre&gt;&lt;code&gt;Add Exception Breakpoint
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;p&gt;为异常断点，一般都会在debug的情况下添加一个，可以看到异常的位置。&lt;/p&gt;
+  &lt;pre&gt;&lt;code&gt;breakpoint set
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;p&gt;可以在运行的时候给你想要添加断点的地方增加断点。&lt;br /&gt;
+ 查看程序中所有的断点，使用&lt;code&gt;breakpoint list&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;5.watchpoint 观察设置点&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;作为断点的补充，LLDB支持观察点以在不中断程序运行的情况下监测一些变量。&lt;/p&gt;
+  &lt;pre&gt;&lt;code&gt;watchpoint set self-&amp;gt;testVar     //为该变量地址设置watchpoint
+watchpoint set expression 0x00007fb27b4969e0 //为该内存地址设置watchpoint，内存地址可从前文提及的`p`命令获取
+watchpoint command add -o 'frame info' 1  //为watchpoint 1号加上子命令 `frame info`
+watchpoint list //列出所有watchpoint
+watchpoint delete // 删除所有watchpoint
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;6.thread、bt、frame   线程和堆栈&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;bt 即是thread backtrace，作用是打印出当前线程的堆栈信息。当线程发生crash后，我们可以用该命令打印出发生crash的当前程序堆栈，查询出发生crash的调用路径。&lt;br /&gt;
+thread另一个常用的用法就是 thread return，调试的时候，我们希望在当前执行的程序堆栈直接返回一个自己想要的值，可以执行该命令直接返回。
+frame 即是帧，其实就是当前的程序堆栈，我们输入bt命令，打印出来的就是当前线程的frame。在调试中，一般我们比较关心当前堆栈的变量值，我们可以使用frame variable来获取全部变量值。当然也可以输入特定变量名，来获取单独的变量值，如frame v self-&amp;gt;testVar来获取testVar的值。如果想看另外一帧，可以使用frame select&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;7.image&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;image list 可以查看工程中使用的库&lt;br /&gt;
+image lookup –address 可以根据执行文件的地址找到程序具体的位置，对于奔溃调试很重要。&lt;br /&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;LLDB是一个很强大的调试工具，在开发的过程中需要经常使用，提高我们的开发效率，以上只是简单的命令介绍，因为网上有很全的参考资料，就不在赘述；LLDB解析&lt;a href=&quot;https://objccn.io/issue-19-2/&quot;&gt;《与调试器共舞 – LLDB 的华尔兹》&lt;/a&gt;,和南峰子的技术博客&lt;a href=&quot;http://southpeak.github.io/2015/01/25/tool-lldb/&quot;&gt;《LLDB调试器使用简介》&lt;/a&gt;这两篇文章很详细的介绍了LLDB的使用和原理，值得一看。&lt;/p&gt;
+
+&lt;h3 id=&quot;chisel-lldb&quot;&gt;二、Chisel-LLDB命令插件&lt;/h3&gt;
+&lt;p&gt;学习了上面的LLDB的基本调试技巧，我们下面来看一个强大的第三方插件Chisel，Chisel是facebook开源的LLDB插件，可以让调试更加的容易。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1、安装&lt;/strong&gt; &lt;br /&gt;
+源代码地址：&lt;a href=&quot;https://github.com/facebook/chisel&quot;&gt;Chisel&lt;/a&gt;,Chisel 使用homebrew来安装。&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;如果没有安装homebrew，请看下面步骤 ，安装过的，请忽略&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;打开MAC终端，输入下列命令:&lt;/p&gt;
+  &lt;pre&gt;&lt;code&gt;brew update
+brew install chisel
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;p&gt;安装完成按照安装日志上的提示，在~/.lldbinit文件中添加一行，没有则新建。 提示类似如下：&lt;/p&gt;
+  &lt;pre&gt;&lt;code&gt;==&amp;gt; Caveats
+Add the following line to ~/.lldbinit to load chisel when Xcode launches:
+  command script import /usr/local/opt/chisel/libexec/fblldb.py
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;p&gt;注意这里的地址（/usr/local/opt/chisel），需要你自己看清楚&lt;br /&gt;
+做好上面的步骤就可以重启Xcode来使用了。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;2、内置命令&lt;/strong&gt; &lt;br /&gt;
+&lt;strong&gt;&lt;em&gt;2.1. pviews&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这个命令可以递归打印所有的view，并能标示层级，相对于UIView的私有辅助方法&lt;code&gt;view recursiveDescription&lt;/code&gt;  。使用pviews可以在调试定位时省去很多麻烦。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.2. pvc&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这个命令也是递归打印层级，但不是view，而是viewController。利用它我们对viewController的结构也是一目了然。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.3. visualize&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这个命令可以让你使用Mac的预览打开一个UIImage、CGImageRef，UIView、或CALayer。这个功能或许可以帮助我们来截图、用来定位一个view具体内容，但是这个功能现在只是在模拟器好使，在真机不好使。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.4. fv &amp;amp; fvc&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;fv 和 fvc 这两个命令是用来通过类名搜索当前内存中存在的view和viewController实例的命令，支持正则搜索。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.5. show &amp;amp; hide&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这两个命令用来显示和隐藏一个指定的UIView ,你甚至不需要Continue Progress就可以看到效果。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.6. mask/umask  border/unborder&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这两组命令用来标识一个view或layer的位置时用，mask用来在view上覆盖一个半透明的矩形，border可以给view添加边框。但是实际使用的过程中mask一般会有问题。mask/unmask 一般不使用。用border命令是一样的效果。反正二者的用途都是找到一个对应的view。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.7. caflush&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这个命令会重新渲染，即可以重新绘制界面，相当于执行了&lt;code&gt;[CATransaction flush]&lt;/code&gt; 方法，要注意如果在动画过程中执行这个命令，就直接渲染动画结束的效果。&lt;br /&gt;
+当你想在调试界面颜色、坐标之类的时候，可以直接在控制台修改属性，然后caflush 就可以看到效果啦，很方便省事。&lt;br /&gt;
+例子，给其中的$122即目标UIView使用caflush&lt;/p&gt;
+  &lt;pre&gt;&lt;code&gt;(lldb) p view
+(long) $122 = 140718754142192
+(lldb) e (void)[$122 setBackgroundColor:[UIColor greenColor]]
+(lldb) caflush
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2.8. bmessage&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;这个命令是用来打断定用的，一般情况我们都是在GUI界面中直接打断定的，但是如果想在没有实现的方法中打断点剧需要重新实现这个方法，然后打断点，然后rebuild。这样很麻烦。那么bmessage就是解决这个问题的。&lt;br /&gt;
+比如我们没有实现&lt;code&gt;viewWillAppear:&lt;/code&gt;方法，但是要在它里面打断点，使用方法 &lt;code&gt;bmessage -[MyViewController viewWillAppear:]&lt;/code&gt; 上面的命令会在其父类的&lt;code&gt;viewWillAppear:&lt;/code&gt;方法中打断点，并添加上条件&lt;code&gt;[self isKindOfClass:[MyViewController class]]&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;参考资料：&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://southpeak.github.io/2015/01/25/tool-lldb/&quot;&gt;LLDB调试器使用简介&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://objccn.io/issue-19-2/&quot;&gt;与调试器共舞 – LLDB 的华尔兹&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://blog.cnbluebox.com/blog/2015/03/05/chisel/&quot;&gt;Chisel-LLDB命令插件，让调试更Easy&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 02 Mar 2017 21:20:24 +0800</pubDate>
+        <link>https://shunzhitang.github.io/2017/03/iOS-lldb-Note/</link>
+        <guid isPermaLink="true">https://shunzhitang.github.io/2017/03/iOS-lldb-Note/</guid>
+        
+        <category>Objective-C回顾温习集</category>
+        
+        
+      </item>
     
       <item>
         <title>拾起最初的梦想</title>
@@ -2021,229 +2188,6 @@ objc在向一个对象发送消息时，runtime库会根据对象的isa指针找
         <pubDate>Fri, 08 Apr 2016 21:12:24 +0800</pubDate>
         <link>https://shunzhitang.github.io/2016/04/iOS-method-Note/</link>
         <guid isPermaLink="true">https://shunzhitang.github.io/2016/04/iOS-method-Note/</guid>
-        
-        <category>Objective-C回顾温习集</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>基础篇-Property</title>
-        <description>&lt;h3 id=&quot;property&quot;&gt;一、property相关&lt;/h3&gt;
-&lt;p&gt;@property有哪些修饰符&lt;br /&gt;
-1、线程安全（原子性）&lt;br /&gt;
-  atomic 和 nonatomic&lt;/p&gt;
-&lt;p&gt;
-详解：&lt;br /&gt;
-atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。&lt;br /&gt;
-注意：&lt;br /&gt;
-1.atomic原子性指的是一个操作不可以被CPU中途暂停，然后再调度。即不能被中断，要么就执行完，要么就不执行。&lt;br /&gt;
-2.atomic是自旋锁，当上一线程没有执行完毕的时候（被锁住），下一个线程会一直等待（不会进入睡眠状态），当上衣线程任务执行完毕，下一线程立即执行。它区别于互斥锁，互斥锁在等待的时候，会进入睡眠状态，当被上一线程执行完毕后，会被唤醒，然后再执行。&lt;br /&gt;
-3.atomic只给setter方法上锁，getter不会加锁。&lt;br /&gt;
-4.atomic需要消耗大量的资源，执行效率低&lt;br /&gt;
-&lt;br /&gt;
-nonatomic (非原子性):非线程安全，多个线程可以同时对其进行访问，使用该属性会少生成加锁的代码，提高性能和效率，使用频率高，一般都是放弃安全，提高性能。
-&lt;/p&gt;
-&lt;p&gt;2、访问权限&lt;br /&gt;
-  readonly、readwrite&lt;br /&gt;&lt;/p&gt;
-&lt;p&gt;
-  详解：&lt;br /&gt;
-  readonly 只读属性、只会生成getter方法，不会生成setter方法&lt;br /&gt;
-  readwrite 默认，拥有getter/setter方法，可读可写
- &lt;/p&gt;
-&lt;p&gt;3、内存管理&lt;br /&gt;
-  ARC: assign、strong、weak、copy（mutableCopy）、unsafe_unretained&lt;br /&gt;
-  MRC: assign、retain（release释放）&lt;br /&gt;
-  详解：&lt;br /&gt;
-1.assign 默认 : 适用于基本数据类型:NSInteger、CGFloat和C数据类型int、float 以及enum类型等&lt;br /&gt;
-2.strong对应MRC中的retain : 强引用，只有OC对象才能够使用该属性，它使对象的引用计数器加1&lt;br /&gt;
-3.weak : 弱引用，只是单纯引用某个对象，但是并未拥有该对象，即一个对象被持有无数个弱引用，只要没有strong引用指向它，那么它就会自动释放。&lt;br /&gt;
-4.copy(mutableCopy) : 如果想要创建一个对象，该对象与源对象的内容一致，那么就可以使用copy。&lt;br /&gt;
-copy和mutableCopy的区别：&lt;br /&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-
-  &lt;p&gt;源对象是不可变类型或者可变类型&lt;br /&gt;
-1.copy出来的对象类型总是不可变类型（例如：NSString、NSArray，NSDictionary）&lt;br /&gt;
-2.mutableCopy出来的对象类型总是可变类型（例如：NSMutableString,NSMutableDictionary,NSMutaleArray）&lt;br /&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;深拷贝和浅拷贝：&lt;br /&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-
-  &lt;p&gt;1.深拷贝：拷贝出来的对象与源对象地址不一致，这意味着我们改变拷贝对象的值对原来的值没有任何影响。&lt;br /&gt;
-2.浅拷贝：拷贝出来的对象与源地址一致，这意味着我修改拷贝对象的值会影响到源对象。&lt;br /&gt;
-注意：&lt;br /&gt;
-”copy都是浅拷贝，mutableCopy都是深拷贝“ 这句话是错误的，解释：当我们用copy从一个可变对象拷贝出一个不可变对象时，这种情况属于深拷贝而不是浅拷贝。&lt;br /&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;copy拓展： 深拷贝和浅拷贝有相对之分：&lt;/p&gt;
-&lt;blockquote&gt;
-
-  &lt;p&gt;A、对于NSString 对象，深拷贝就是深拷贝，浅拷贝就是浅拷贝&lt;br /&gt;
-B、对于NSArray ，NSDictionary ，NSSet这些容器类的对象呢？当然浅拷贝依然是指针的拷贝，但是深拷贝要分为不完全深拷贝和完全深拷贝&lt;br /&gt;
- 不完全深拷贝：不完全深拷贝就是只拷贝对象，而对于容器内的对象则只保存一份引用。&lt;br /&gt;
- 完全深拷贝：就是连同容器的对象在内，完完全全拷贝一份&lt;br /&gt;
-ps： 默认状态下深拷贝指的是不完全深拷贝，如果要实现完全深拷贝，则要重写copyWithZone:方法&lt;br /&gt;
-如果要实现完全深拷贝可以利用容器（NSArray）的分类重写copyWithZone:方法，但是Apple官方不推荐这样做（copy内部默认调用copyWithZone:方法，但是NSArray不会调用这个方法，所以默认是不完全深拷贝）&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;block 为什么使用copy？&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;首先，block是一个对象，所以block理论上是可以使用retain/release，但是block在创建时它的内存是默认分配在栈（stack）上的，而不是堆（heap），当在作用域外调用该block时，MRC下就会奔溃，使用copy就能把他放在堆区，这样在作用域外调用这个block就不会crash。&lt;br /&gt;
-Apple官方文档：”Typically, you shouldn’t need to copy (or retain) a block. You only need to make a copy when you expect the block to be used after destruction of the scope within which it was declared. Copying moves a block to the heap.”一般情况下不需要自行调用copy或者retain修饰一个block，只有当需要在作用域外的地方使用时才需要copy，copy将block存内存区移到堆区。&lt;br /&gt;
-在ARC下修饰属性block&lt;br /&gt;
-1、使用weak或者assign修饰block，block访问外部变量，此block就是栈block，保存在栈中的block，当block所在的函数执行后，该bloc就会被销毁，在其他方法中访问该block就会产生野指针错误。&lt;br /&gt;
-2、copy、strong都可以修饰block，但是建议使用copy。block访问外部变量时此时block就是堆block。&lt;br /&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;扩展–Block存储类型&lt;/p&gt;
-&lt;blockquote&gt;
-
-  &lt;p&gt;1、不管是ARC还是MRC环境下，block内部如果没有访问外部变量，这个block就是全局block &lt;strong&gt;NSGlobalBlock&lt;/strong&gt;,存储在全局区。&lt;br /&gt;
-2、在MRC下，block内部如果不访问外部变量，这个block是栈block &lt;strong&gt;NSStackBlock&lt;/strong&gt; ，存储在内存中的栈上。&lt;br /&gt;
-3、在MRC下，block内部访问外部变量，同时对该block做一次copy操作，这个block就是堆block &lt;strong&gt;NSMallocBlock&lt;/strong&gt;，存储在内存的堆上。
-4、在ARC下，block内部如果访问外部变量，这个block就是堆block，&lt;strong&gt;NSMallocBlock&lt;/strong&gt; ，存储在内存中的堆上，因为在ARC下，默认对block做一次copy操作。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/image/blockCopy.png&quot; alt=&quot;图片1&quot; title=&quot;block内存一览图&quot; /&gt;&lt;/p&gt;
-
-&lt;hr /&gt;
-&lt;p&gt;关于copy 和strong&lt;br /&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;NSString 、NSArray、NSDictionary常用copy，为什么不用strong？&lt;br /&gt;
-strong是一个强引用，指向的是一个内存地址，copy是内容拷贝，会另外开辟内存空间，指针指向一个不同的内存地址，copy返回的是一个不可变对象，如果使用strong修饰可变对象，那么对象就可能在不经意间修改，有时不是我们想要的，而copy就不会发生这种情况。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;5.unsafe_unretained : 和assign一样的作用 ， 同时也是一种弱引用的表示。&lt;br /&gt;
-weak 和unsafe_unretained的区别？&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;对于weak，指针的对象在它指向的对象释放的时候会转换为nil，并且会把所有引用过它的对象置为nil，消耗性能，这是一种安全的行为；但是unsafe_unretained 会继续指向对象存在的内存，即使在它已经销毁之后，这会导致因为访问那个已经释放对象而引起crash。&lt;br /&gt;
-为什么还要使用__unsafe_unretained？&lt;br /&gt;
-因为iOS4.0以前没有weak
-&lt;br /&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;4、指定方法名称
-  getter、setter&lt;br /&gt;
-方法指定： getter = XXX ,setter = XXX&lt;br /&gt;
-使用@property ,编译器会自动为我们添加getter和setter方法。&lt;/p&gt;
-
-&lt;hr /&gt;
-&lt;h3 id=&quot;section&quot;&gt;二、基础知识点&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;1、ARC下，不显示指定属性关键字时，默认关键字有哪些？&lt;br /&gt;&lt;/strong&gt;
-1.基本数据类型： atomic , readwrite, assign&lt;br /&gt;
-2.普通OC对象 : atomic , readwrite , strong&lt;br /&gt;
-&lt;strong&gt;2、@property (copy) NSMutableArray *array; 这样写有什么问题？&lt;br /&gt;&lt;/strong&gt;
- 1.因为NSMutableArray使用的是copy修饰关键字(copy出来的对象总是不可变类型)，外面不管传值为NSMutableArray或者NSArray对象，array都是NSArray类型，编译器还是会认为是NSMutableArray，但是调用addObject就会crash。&lt;br /&gt;
- 2.使用了atomic属性严重影响性能。&lt;br /&gt;
-&lt;strong&gt;3、如何让自己的类用copy修饰符？如何重写带copy关键字的setter？&lt;br /&gt;&lt;/strong&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;若想令自己所写的类具有拷贝功能，需要实现NSCopying协议；如果自定义的对象分为可变和不可变，那么同时实现NSCopying与NSMutableCopying协议。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;具体步骤：&lt;br /&gt;
-1.需声明该类遵从NSCopying协议&lt;br /&gt;
-2.实现NSCopying协议的协议方法&lt;br /&gt;
-&lt;code&gt;- (id)copyWithZone:(NSZone *)zone;&lt;/code&gt;&lt;br /&gt;
-重写copy关键字的setter&lt;br /&gt;
-&lt;code&gt;- (void)setName:(NSString *)name {&lt;/code&gt;&lt;br /&gt;
-    &lt;code&gt;_name = [name copy];&lt;/code&gt;&lt;br /&gt;
-&lt;code&gt;}&lt;/code&gt;&lt;br /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;4、@property的本质是什么？ivar、getter、setter是如何生成并添加这个类中的？&lt;br /&gt;&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt; property的本质是：&lt;code&gt;@property = ivar + getter + setter;&lt;/code&gt;&lt;br /&gt;
-解释如下：&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;属性（property）有两大概念 ： ivar (实例变量)、存取方法（access method）= getter + setter&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;ivar、getter、setter如何生成并添加到类中的？&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;“自动合成（autosynthesis）”&lt;br /&gt;
-完成属性定义后，编译器会自定编写访问这些属性所需的方法，此过程叫做“自动合成autosynthesis”，需要注意的是，这个过程由编译器在编译期执行，所以编辑器里看不到“合成方法（synthesis method）”的源码，除了生成getter、setter之外，编译器还要自动向类中添加适当类型的实例变量，并且在属性名前面加上下划线，一次作为实例变量名的名字。比如：_name , 也可以在类的实现代码里通过@synthesize 语法来指定实例变量的名字（@synthesize name = _myName）&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;反编译类实现如下：&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;1.OBJC_IVAR_$类名$属性名称 : 该属性的偏移量（offset），这个偏移量是硬编码，表示该变量距离存放对象的内存区域的起始地址有多远。&lt;br /&gt;
-2.setter 与 getter方法对应的实现函数&lt;br /&gt;
-3.ivar_list : 成员变量列表&lt;br /&gt;
-4.method_list: 方法列表&lt;br /&gt;
-5.prop_list : 属性列表&lt;br /&gt;
-总结：每次增加一个属性，系统都会在ivar_list中添加一个成员变量的描述，在method_list中增加getter和setter方法的描述，在属性列表中增加一个属性的描述，然后计算该属性在对象中的偏移量，然后给出getter和setter方法对应的实现，在setter方法中从偏移量的位置开始赋值，在getter方法中从偏移量的位置开始取值，为了能够读取正确的字节数，系统对偏移量的位置进行了类型强转。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;5、@protocol和category 中如何使用@property&lt;/strong&gt;&lt;br /&gt;
-1.在protocol中使用property只会生成getter和setter方法的声明，我们使用属性的目的是希望遵守我协议的对象能实现该属性.&lt;br /&gt;
-2.category使用@property也是只会生成setter和getter方法的声明，如果我们需要给category增加属性的实现，需要借助于运行下面两个函数&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;code&gt;objc_setAssociatedObject&lt;/code&gt; &lt;br /&gt; &lt;code&gt;objc_getAssociatedObject&lt;/code&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;6、runtime 如何实现weak属性&lt;/strong&gt;&lt;br /&gt;
-weak属性的特点：&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;weak此特征表明该属性定义了一种“非拥有关系”（nonowning relationship），为这种属性设置新值时，设置方法既不保留新值，也不释放旧值，此特质通assign类似，然而在属性所指的对象销毁时，属性也会被置为nil。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;runtime如何实现weak变量的自定置为nil?&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;runtime 对注册的类会进行布局，对于weak对象会放入一个hash表中，用weak指向的对象内存地址作为key，当此对象的引用计数器为0的时候会dealloc，假如weak指向对象的内存地址为a，那么就以a为键，在这个weak表中搜索，找到所有以a为键的weak对象，从而设置nil。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;7、weak属性需要在dealloc中置为nil吗？&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;不需要&lt;br /&gt;
-在ARC环境无论是强指针还是弱指针都不需要再dealloc设置为nil,ARC会自定帮我们处理&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;8、@synthesize和@dynamic分别有什么作用&lt;/strong&gt;&lt;br /&gt;
-1.@property 有两个对应的词，一个是@synthesize，一个是@dynamic ,如果@synthesize和@dynamic都没写，默认就是@synthesize var = _var;&lt;br /&gt;
-2.@synthesize的语义是如果你没有手动实现setter方法和getter方法，那么编译器会自定的加上这两个方法.&lt;br /&gt;
-3.@dynamic告诉编译器：属性的setter与getter方法由用户自己实现，（对于readonly只提供getter方法就可以了） ， 加入一个属性被声明为@dynamic var ,然后没有提供@getter和setter方法，那么程序在编译的时候没有问题，但是当程序运行到instance.var = someVar,由于缺少setter方法就会导致程序奔溃，或者在运行到someVar = var 时，由于没有提供getter方法同样会导致奔溃。编译的时间没有问题，运行时才执行对应的方法，这就是所谓的动态绑定。&lt;br /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;9、@synthesize合成实例变量的规则是什么？假如property名为foo，存在一个_foo的实例变量，那么还会自动合成新变量吗？&lt;/strong&gt;&lt;br /&gt;
-首先明确概念:&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;实例变量 = 成员变量 = ivar&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;总结下@synthesize合成实例变量的规则，如下：&lt;/p&gt;
-&lt;blockquote&gt;
-
-  &lt;p&gt;1.如果指定了成员变量的名称，会生成一个指定的名称的成员变量。&lt;br /&gt;
-2.如果这个成员已经存在就不会再生成。&lt;br /&gt;
-3.如果是@synthesize foo; 还会生成一个名称为foo的成员变量，也就是说:
-如果没有指定成员变量的名称会自定生成一个属性同名的成员变量，&lt;br /&gt;
-如果是@synthesize foo = _foo ，就不会再生成成员变量了。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;假如property名为foo，存在一个名为_foo的实例变量，那么还会自动合成新变量吗？&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;不会&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;10、在有了property自定合成属性变量之后，@synthesize还有哪些使用场景？&lt;/strong&gt;&lt;br /&gt;
-回答这个问题的时间需要搞清楚，什么情况下不会autosynthesis(自动合成)?&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;1.同时重写了setter和getter时&lt;br /&gt;
-2.重写了只读属性的getter时&lt;br /&gt;
-3.使用了@dynamic时&lt;br /&gt;
-4.在@protocol中定义的所有属性&lt;br /&gt;
-5.在category中定义的所有属性&lt;br /&gt;
-6.重载的属性&lt;br /&gt;
-当你在子类中重载了父类中的属性，你必须使用@synthesize来手动合成ivar。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;总结： 如果需要使用ivar，但是autosynthesis 失效，如果不去手动定义ivar，那么就需要@synthesize来手动合成ivar。还有一个场景就是在类的实现代码中通过@synthesize语法指定实例变量的名字：  &lt;code&gt;@synthesize name = _myName&lt;/code&gt;,但是这种场景不推荐使用。&lt;br /&gt;&lt;/p&gt;
-
-&lt;hr /&gt;
-&lt;p&gt;参考资料：&lt;a href=&quot;https://github.com/ChenYilong/iOSInterviewQuestions/blob/master/01%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88/%E3%80%8A%E6%8B%9B%E8%81%98%E4%B8%80%E4%B8%AA%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E3%80%8B%E9%9D%A2%E8%AF%95%E9%A2%98%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88%EF%BC%88%E4%B8%8A%EF%BC%89.md#14-synthesize%E5%90%88%E6%88%90%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E7%9A%84%E8%A7%84%E5%88%99%E6%98%AF%E4%BB%80%E4%B9%88%E5%81%87%E5%A6%82property%E5%90%8D%E4%B8%BAfoo%E5%AD%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%90%8D%E4%B8%BA_foo%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E9%82%A3%E4%B9%88%E8%BF%98%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%90%88%E6%88%90%E6%96%B0%E5%8F%98%E9%87%8F%E4%B9%88&quot;&gt;@iOS程序犭袁的Git分享&lt;/a&gt;&lt;/p&gt;
-</description>
-        <pubDate>Fri, 12 Feb 2016 18:32:24 +0800</pubDate>
-        <link>https://shunzhitang.github.io/2016/02/iOS-first-Notes/</link>
-        <guid isPermaLink="true">https://shunzhitang.github.io/2016/02/iOS-first-Notes/</guid>
         
         <category>Objective-C回顾温习集</category>
         
