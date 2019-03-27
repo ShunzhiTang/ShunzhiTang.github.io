@@ -6,17 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <title>枫</title>
-  <meta name="description" content="嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！">
+  <title>Unity插件之iOS和Android</title>
+  <meta name="description" content="// unity插件">
   <meta name="author" content="Wei Wang">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="枫">
-  <meta name="twitter:description" content="嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！">
+  <meta name="twitter:title" content="Unity插件之iOS和Android">
+  <meta name="twitter:description" content="// unity插件">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="枫">
-  <meta property="og:description" content="嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！">
+  <meta property="og:title" content="Unity插件之iOS和Android">
+  <meta property="og:description" content="// unity插件">
 
   <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
   <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="/css/main.css">
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-  <link rel="canonical" href="https://shunzhitang.github.io/page/2/">
+  <link rel="canonical" href="https://shunzhitang.github.io/2019/03/iOS-iosRecord-Note/">
   <link rel="alternate" type="application/rss+xml" title="枫" href="https://shunzhitang.github.io/feed.xml">
 
   <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
@@ -39,7 +39,7 @@
         <i class="fa fa-angle-up btn-mobile-close__icon hidden"></i>
     </span>
     
-    <header class="panel-cover " style="background-image: url('/assets/images/background-cover.jpg')">
+    <header class="panel-cover panel-cover--collapsed" style="background-image: url('/assets/images/background-cover.jpg')">
   <div class="panel-main">
 
     <div class="panel-main__inner panel-inverted">
@@ -131,40 +131,65 @@
 
     <div class="content-wrapper">
         <div class="content-wrapper__inner">
-            <div class="main-post-list hidden">
+            <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="2019-03-20 21:20:24 +0800" itemprop="datePublished" class="post-meta__date date">2019-03-20</time> &#8226; <span class="post-meta__tags tags">iOS项目疑难杂症集</span>
+    </div>
+    <h1 class="post-title">Unity插件之iOS和Android</h1>
+  </header>
 
-  <ol class="post-list">
+  <section class="post">
+    <p>// unity插件</p>
+
+<hr />
+<p>参考资料：<br /></p>
+
+
+  </section>
+</article>
+
+<section class="read-more">
+   
+   
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">更早的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2017/03/iOS-lldb-Note/" title="link to 基础篇-LLDB调试">基础篇-LLDB调试</a></h2>
+       <p class="excerpt">  LLDB是一个有着REPL的特性和C++，Python插件的开源调试器。LLDB绑定在Xcode内部，存在于主窗口底部的控制台中。调试器允许你在程序运行的特定时机暂停它，你可以查看变量的值，执行自定的指令，并且按照你所以为合适的步骤来操作程序的进展。在iOS的开发中，调试是一个非常重要的功能，有时间不需要重复的运行程序就可以指定我们的调试过程，这时候就需要使用LLDB来实现。一、LLDB的简单使用1、LLBD的命令使用1.help 命令  最简单的命令就是help命令，它会列举出所有的...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2017-03-02 21:20:24 +0800" class="post-list__meta--date date">2017-03-02</time> &#8226; <span class="post-list__meta--tags tags">Objective-C回顾温习集</span><a class="btn-border-small" href=/2017/03/iOS-lldb-Note/>继续阅读</a></div>
+   </div>
+   
+</section>
+
+<section class="post-comments">
+  
+    <div id="disqus_thread"></div>
+    <script>
     
-    <li>
-      <h2 class="post-list__post-title post-title"><a href="/2016/04/iOS-method-Note/" title="访问 基础篇-Objc消息机制">基础篇-Objc消息机制</a></h2>
-      <p class="excerpt">  消息发送和转发流程可以概括为：消息发送（Messaging）是Runtime通过selector快速查找IMP的过程，有了函数指针就可以执行对应的方法实现，消息转发（Message Forwarding）是在查找IMP失败后执行一系列转发流程的慢速通道，如果不做转发处理则会打印日志或者抛出异常。深入理解原理查看八面玲珑的博客一、Runtime基本概念 1、IMP  IMP是“implementation”的缩写，它是Objective-C指向方法（method）实现开始的指针（A po...&hellip;</p>
-      <div class="post-list__meta"><time datetime="2016-04-08 21:12:24 +0800" class="post-list__meta--date date">2016-04-08</time> &#8226; <span class="post-list__meta--tags tags">Objective-C回顾温习集</span><a class="btn-border-small" href=/2016/04/iOS-method-Note/>继续阅读</a></div>
-      <hr class="post-list__divider" />
-    </li>
+    var disqus_config = function () {
+        this.page.url = "https://shunzhitang.github.io/2019/03/iOS-iosRecord-Note/";
+        this.page.identifier = "/2019/03/iOS-iosRecord-Note/";
+    };
 
+    var disqus_shortname = 'Tangfeng';
     
-    <li>
-      <h2 class="post-list__post-title post-title"><a href="/2016/02/iOS-first-Notes/" title="访问 基础篇-Property">基础篇-Property</a></h2>
-      <p class="excerpt">一、property相关@property有哪些修饰符1、线程安全（原子性）  atomic 和 nonatomic详解：atomic（原子性---默认）:这个属性是为了保证程序在多线程下，编译器会自动生成自旋锁代码，避免该变量读写不同步问题，提供多线程安全，即多线程中只能一个线程对它进行访问。注意：1.atomic原子性指的是一个操作不可以被CPU中途暂停，然后再调度。即不能被中断，要么就执行完，要么就不执行。2.atomic是自旋锁，当上一线程没有执行完毕的时候（被锁住），下一个线程会...&hellip;</p>
-      <div class="post-list__meta"><time datetime="2016-02-12 18:32:24 +0800" class="post-list__meta--date date">2016-02-12</time> &#8226; <span class="post-list__meta--tags tags">Objective-C回顾温习集</span><a class="btn-border-small" href=/2016/02/iOS-first-Notes/>继续阅读</a></div>
-      <hr class="post-list__divider" />
-    </li>
-
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>要查看<a href="http://disqus.com/?ref_noscript"> Disqus </a>评论，请启用 JavaScript</noscript>
     
-  </ol>
+  
+  
+  
+  
+</section>
 
-  <hr class="post-list__divider " />
-
-<nav class="pagination" role="navigation">
-    
-        <a class="newer-posts pagination__newer btn btn-small btn-tertiary" href="/#blog">&larr; 最近</a>
-    
-    <span class="pagination__page-number">2 / 2</span>
-    
-</nav>
-
-
-</div>
 
             <section class="footer">
     <footer>
