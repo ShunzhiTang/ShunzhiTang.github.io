@@ -179,7 +179,7 @@ AOT编译器将中间语言（IL）（.NET编译器的低级输出）转换为C 
 利用IL2CPP程序，将IL转换成C++语言
 与之前不同，编译到 XCode 之后不再包含动态库(.dll)文件
 理论上讲，直接用C++编译运行机器码，要比 mono 运行环境代码快许多，不得不说 Unity 为了性能也是够拼了
-想要了解跟多，可以查看：http://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/</p>
+想要了解跟多，可以查看：<a href="http://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/">IL2CPP</a></p>
 </blockquote>
 
 <h4 id="dllimport-">DllImport 机制</h4>
@@ -218,29 +218,25 @@ internal static extern ReturnValue FunctionName(string parameter1, int parameter
 <h4 id="ios--dllimport">iOS 实现 DllImport</h4>
 <h5 id="c">1. C语言环境下实现交互</h5>
 
-<ol>
-  <li>C# DllImport 声明</li>
-</ol>
+<p>C# DllImport 声明</p>
 
 <pre><code class="language-c#">[DllImport ("__Internal")]
 private static extern string SomeFunction();
 </code></pre>
 
-<ol>
-  <li>iOS C语言环境实现
-在 .mm 的文件中
-    <pre><code class="language-c">extern 'C' {
+<p>iOS C语言环境实现</p>
+
+<p>在 .mm 的文件中</p>
+<pre><code class="language-c">extern 'C' {
   char* SomeFunction() {
-   char* retString = (char*)malloc(4);
-   memset(retString, 0, 4);
-   strncpy(retString, "abc", 4);
-   return retString;
+      char* retString = (char*)malloc(4);
+      memset(retString, 0, 4);
+      strncpy(retString, "abc", 4);
+      return retString;
   }
 }
 </code></pre>
-    <p><strong>因为当前方法的返回值是 string 类型，没有办法直接去返回需要转成char * 的格式返回，需要在 C 环境下给字符分配空间</strong></p>
-  </li>
-</ol>
+<p><strong>因为当前方法的返回值是 string 类型，没有办法直接去返回需要转成char * 的格式返回，需要在 C 环境下给字符分配空间</strong></p>
 
 <h5 id="objective-c-">2. Objective-C 语言环境下实现交互</h5>
 <blockquote>
@@ -248,40 +244,37 @@ private static extern string SomeFunction();
 利用指针地址原理，在C#和OC环境下指针地址一致，在不同的环境中都可以找到对应的指针地址从而找到对应的对象完成方法调用</p>
 </blockquote>
 
-<ol>
-  <li>C# DllImport 传入C#返回OC对象的声明
-    <pre><code class="language-c#">[DllImport("__Internal")]
+<p>C# DllImport 传入C#返回OC对象的声明</p>
+
+<pre><code class="language-c#">[DllImport("__Internal")]
 internal static extern IntPtr InitInstance(IntPtr unityObject); //IntPtr 返回值是一个OC对象
 </code></pre>
-  </li>
-  <li>iOS Objective-C语言环境实现
-在 .m的文件中实现
-```objective-c
-/// Type representing a Unity  client.
+
+<p>iOS Objective-C语言环境实现</p>
+
+<pre><code class="language-objective-c">/// Type representing a Unity  client.
 typedef const void *InstanceClientRef;
 /// Type representing a instance.
-typedef const void *InstanceRef;</li>
-</ol>
+typedef const void *InstanceRef;
 
-<p>InstanceRef InitInstance(InstanceClientRef *client)
+InstanceRef InitInstance(InstanceClientRef *client)
 {
     OCInstance *ocInstance = [[OCInstance alloc] init];
     // 在这里需要把ocInstance 这个对象缓存起来，别让他释放 
     return (__bridge InstanceRef)ocInstance;
-}</p>
-<pre><code>
-OCInstance 是一个objective-c对象，有.h 和.m 文件
+}
+</code></pre>
 
+<p>OCInstance 是一个objective-c对象，有.h 和.m 文件</p>
 
-### iOS 调用 Unity 原生方法
-这种方式一般用于 iOS 给 unity 一些方法回调
+<h3 id="ios--unity-">iOS 调用 Unity 原生方法</h3>
+<p>这种方式一般用于 iOS 给 unity 一些方法回调</p>
 
-#### UnitySendMessage
+<h4 id="unitysendmessage">UnitySendMessage</h4>
 
-OC 调用 C#
+<p>OC 调用 C#</p>
 
-```C
-extern "C"{
+<pre><code class="language-C">extern "C"{
     extern void UnitySendMessage(const char *, const char *, const char *);
 }
 </code></pre>
@@ -300,12 +293,11 @@ extern "C"{
         // Implement CallUnityFunction
     }
 }
-
 </code></pre>
 <h4 id="monopinvokecallback">MonoPInvokeCallback</h4>
 <p>ObjCRuntime.MonoPInvokeCallbackAttribute Class</p>
 <blockquote>
-  <p>Attribute used to annotate functions that will be called back from the unmanaged world.
+  <p>Attribute used to annotate functions that will be called back from the unmanaged world.<br />
 MonoPInvokeCallback特性参数是定义的非托管delegate</p>
 </blockquote>
 

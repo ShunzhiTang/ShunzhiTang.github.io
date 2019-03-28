@@ -30,7 +30,7 @@ tags: iOS项目疑难杂症集
 > 利用IL2CPP程序，将IL转换成C++语言
 > 与之前不同，编译到 XCode 之后不再包含动态库(.dll)文件
 > 理论上讲，直接用C++编译运行机器码，要比 mono 运行环境代码快许多，不得不说 Unity 为了性能也是够拼了
-> 想要了解跟多，可以查看：http://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/
+> 想要了解跟多，可以查看：[IL2CPP](http://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/)
 
 
 #### DllImport 机制
@@ -65,15 +65,18 @@ internal static extern ReturnValue FunctionName(string parameter1, int parameter
 #### iOS 实现 DllImport
 ##### 1. C语言环境下实现交互
 
-1. C# DllImport 声明
+C# DllImport 声明
+
+
 
 ```c#
 [DllImport ("__Internal")]
 private static extern string SomeFunction();
 ```
 
-2. iOS C语言环境实现
-   在 .mm 的文件中
+iOS C语言环境实现
+
+ 在 .mm 的文件中
 ```c
 extern 'C' {
   char* SomeFunction() {
@@ -90,13 +93,15 @@ extern 'C' {
 > 原理
 > 利用指针地址原理，在C#和OC环境下指针地址一致，在不同的环境中都可以找到对应的指针地址从而找到对应的对象完成方法调用
 
-1. C# DllImport 传入C#返回OC对象的声明
+C# DllImport 传入C#返回OC对象的声明
+
 ```c#
 [DllImport("__Internal")]
 internal static extern IntPtr InitInstance(IntPtr unityObject); //IntPtr 返回值是一个OC对象
 ```
-2. iOS Objective-C语言环境实现
-   在 .m的文件中实现
+
+iOS Objective-C语言环境实现
+
 ```objective-c
 /// Type representing a Unity  client.
 typedef const void *InstanceClientRef;
@@ -110,6 +115,7 @@ InstanceRef InitInstance(InstanceClientRef *client)
     return (__bridge InstanceRef)ocInstance;
 }
 ```
+
 
 OCInstance 是一个objective-c对象，有.h 和.m 文件
 
@@ -143,11 +149,10 @@ public class UnityManager{
         // Implement CallUnityFunction
     }
 }
-
 ```
 #### MonoPInvokeCallback
 ObjCRuntime.MonoPInvokeCallbackAttribute Class
->Attribute used to annotate functions that will be called back from the unmanaged world.
+>Attribute used to annotate functions that will be called back from the unmanaged world.<br>
 >MonoPInvokeCallback特性参数是定义的非托管delegate
 
 1. C# 中定义 Delegate
