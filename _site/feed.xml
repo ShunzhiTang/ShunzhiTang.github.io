@@ -2,20 +2,234 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>枫</title>
-    <description>嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</description>
+    <description>嗨，我是唐顺治，(@shunzhitang)  是一名客户端iOS开发者，目前暂居北京，从事一家广告公司！！！</description>
     <link>https://shunzhitang.github.io/</link>
     <atom:link href="https://shunzhitang.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 27 Mar 2019 16:16:52 +0800</pubDate>
-    <lastBuildDate>Wed, 27 Mar 2019 16:16:52 +0800</lastBuildDate>
+    <pubDate>Thu, 28 Mar 2019 16:48:40 +0800</pubDate>
+    <lastBuildDate>Thu, 28 Mar 2019 16:48:40 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
-        <title>Unity插件之iOS和Android</title>
-        <description>&lt;p&gt;// unity插件&lt;/p&gt;
+        <title>Unity iOS 插件原理实现篇</title>
+        <description>&lt;h3 id=&quot;section&quot;&gt;概述&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Unity 作为当前最流行的游戏引擎，它具有非常强大的游戏功能。但当需要接入原生 iOS SDK或 原生 objective-c 交互时， Unity开发者难免会遇到 C 和 C# 交互的难题。本篇就介绍了 Unity 如何优雅得和 iOS进行交互。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;常见场景&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;接入代理商的登录和支付功能，但代理商只提供  iOS 平台 SDK。&lt;/li&gt;
+    &lt;li&gt;一些优秀的插件或工具只提供 iOS 平台 SDK。&lt;/li&gt;
+    &lt;li&gt;一些游戏变现好的广告 SDK 只提供 iOS 平台 SDK。（比如 YumiMediationSDK）&lt;/li&gt;
+    &lt;li&gt;需要通过 Objective-C 调用 iOS 原生类库代码。&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;unity--ios-&quot;&gt;Unity 调用 iOS 原生方法&lt;/h3&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;C#调用iOS的代码，实际上是C#提供了一种调用C（非C++）代码的机制，而在iOS环境中，C代码是可以与苹果的Objective-C代码进行混合编译的，这样，就实现了C#调用iOS代码的功能&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&quot;il2cpp-&quot;&gt;IL2CPP 简单介绍&lt;/h4&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;我们称之为IL2CPP的技术有两个不同的部分。&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;提前（AOT）编译器&lt;/li&gt;
+    &lt;li&gt;用于支持虚拟机的运行时库
+AOT编译器将中间语言（IL）（.NET编译器的低级输出）转换为C ++源代码。 运行时库提供服务和抽象，如垃圾收集器，对线程和文件的独立于平台的访问，以及内部调用的实现（直接修改托管数据结构的本机代码）。&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/image/ll2cpp.png&quot; alt=&quot;ll2cpp示例&quot; title=&quot;示例图&quot; /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Unity 脚本(C#、JavaScript)编译成中间语言（IL，动态库等）
+利用IL2CPP程序，将IL转换成C++语言
+与之前不同，编译到 XCode 之后不再包含动态库(.dll)文件
+理论上讲，直接用C++编译运行机器码，要比 mono 运行环境代码快许多，不得不说 Unity 为了性能也是够拼了
+想要了解跟多，可以查看：http://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&quot;dllimport-&quot;&gt;DllImport 机制&lt;/h4&gt;
+&lt;p&gt;C#提供了DllImport机制，来实现C#和C语言的方法调用&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;无参无返回值&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport(&quot;__Internal&quot;)]
+internal static extern void CallFunction();
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;有参无返回值&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport(&quot;__Internal&quot;)]
+internal static extern void SetGameVersion(string appVersion);
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;有参有返回值&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport(&quot;__Internal&quot;)]
+internal static extern string GetGameName(string identify);
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;DllImport 的语法规则如下所示&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport(&quot;__Internal&quot;)]
+internal static extern ReturnValue FunctionName(string parameter1, int parameter1);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;由于是C语言，支持的参数及其数据类型是非常有限的，诸如int、float、double、char等这类两种语言中都存在的基础数据类型，是可以实现直接映射的，但是C#中的string对应到C中，就是char*了&lt;/p&gt;
+
+&lt;h4 id=&quot;ios--dllimport&quot;&gt;iOS 实现 DllImport&lt;/h4&gt;
+&lt;h5 id=&quot;c&quot;&gt;1. C语言环境下实现交互&lt;/h5&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;C# DllImport 声明&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport (&quot;__Internal&quot;)]
+private static extern string SomeFunction();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;iOS C语言环境实现
+在 .mm 的文件中
+    &lt;pre&gt;&lt;code class=&quot;language-c&quot;&gt;extern 'C' {
+  char* SomeFunction() {
+   char* retString = (char*)malloc(4);
+   memset(retString, 0, 4);
+   strncpy(retString, &quot;abc&quot;, 4);
+   return retString;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;p&gt;&lt;strong&gt;因为当前方法的返回值是 string 类型，没有办法直接去返回需要转成char * 的格式返回，需要在 C 环境下给字符分配空间&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h5 id=&quot;objective-c-&quot;&gt;2. Objective-C 语言环境下实现交互&lt;/h5&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;原理
+利用指针地址原理，在C#和OC环境下指针地址一致，在不同的环境中都可以找到对应的指针地址从而找到对应的对象完成方法调用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;C# DllImport 传入C#返回OC对象的声明
+    &lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport(&quot;__Internal&quot;)]
+internal static extern IntPtr InitInstance(IntPtr unityObject); //IntPtr 返回值是一个OC对象
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;iOS Objective-C语言环境实现
+在 .m的文件中实现
+```objective-c
+/// Type representing a Unity  client.
+typedef const void *InstanceClientRef;
+/// Type representing a instance.
+typedef const void *InstanceRef;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;InstanceRef InitInstance(InstanceClientRef *client)
+{
+    OCInstance *ocInstance = [[OCInstance alloc] init];
+    // 在这里需要把ocInstance 这个对象缓存起来，别让他释放 
+    return (__bridge InstanceRef)ocInstance;
+}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+OCInstance 是一个objective-c对象，有.h 和.m 文件
+
+
+### iOS 调用 Unity 原生方法
+这种方式一般用于 iOS 给 unity 一些方法回调
+
+#### UnitySendMessage
+
+OC 调用 C#
+
+```C
+extern &quot;C&quot;{
+    extern void UnitySendMessage(const char *, const char *, const char *);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot;&gt;UnitySendMessage(&quot;UnityManager&quot;,&quot;CallUnityFunction&quot;,&quot;&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;C# 实现代码
+在 UnityManager 这个类中实现 ‘CallUnityFunction’ 这个方法 就可以调用成功了&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;public class UnityManager{
+    public void CallUnityFunction()
+    {
+        // Implement CallUnityFunction
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id=&quot;monopinvokecallback&quot;&gt;MonoPInvokeCallback&lt;/h4&gt;
+&lt;p&gt;ObjCRuntime.MonoPInvokeCallbackAttribute Class&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Attribute used to annotate functions that will be called back from the unmanaged world.
+MonoPInvokeCallback特性参数是定义的非托管delegate&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;C# 中定义 Delegate&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;public class ManagerClient : IManagerClient{
+    internal delegate void InstanceDidReceiveCallback(IntPtr instace);
+
+    [MonoPInvokeCallback(typeof(InstanceDidReceiveCallback))]
+    private static void MonoDidReceiveCallback(IntPtr instace)
+    {
+        // oc callback method
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;在C#中定义好MonoPInvokeCallback修饰的方法 需要传入OC原生方法中&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-c#&quot;&gt;[DllImport(&quot;__Internal&quot;)]
+internal static extern void SetCallbacks(
+    IntPtr ocInstace,
+    ManagerClient.MonoDidReceiveCallback receivedCallback);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Objective-C 实现MonoPInvokeCallback&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;利用delegate的性质，把C# 传入的MonoDidReceiveCallback 方法直接赋值到OC的方式属性中&lt;/p&gt;
+
+&lt;p&gt;.m 中的方法&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot;&gt;typedef void (*MonoDidReceiveCallback)(InstanceClientRef *instanceClient);
+
+void SetCallbacks(InstanceRef ocInstance,MonoDidReceiveCallback receivedCallback,){
+  OCInstance *ocInstance = (__bridge OCInstance *)ocInstance;
+  ocInstance.receivedCallback = receivedCallback;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;在 OCInstance 类中直接调用以下方法就可以在unity MonoPInvokeCallback 修饰的方法得到消息了&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot;&gt;if (self.receivedCallback) {
+    self.receivedCallback(self.unityClient);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上述这些 Unity 和 iOS 相互传递消息的原理和实现是我在实现Unity插件用到的，希望对你有帮助 ^_^&lt;/p&gt;
 
 &lt;hr /&gt;
-&lt;p&gt;参考资料：&lt;br /&gt;&lt;/p&gt;
-
+&lt;p&gt;参考资料：&lt;br /&gt;
+&lt;a href=&quot;https://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/&quot;&gt;An introduction to IL2CPP internals&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://github.com/yumimobi/YumiMediationSDK-Unity/tree/master/Assets/YumiMediationSDK/Platforms/iOS&quot;&gt;YumiMediationSDK-Unity 插件&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Wed, 20 Mar 2019 21:20:24 +0800</pubDate>
         <link>https://shunzhitang.github.io/2019/03/iOS-iosRecord-Note/</link>

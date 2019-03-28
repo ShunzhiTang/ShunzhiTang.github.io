@@ -6,17 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <title>Unity插件之iOS和Android</title>
-  <meta name="description" content="// unity插件">
+  <title>Unity iOS 插件原理实现篇</title>
+  <meta name="description" content="概述">
   <meta name="author" content="Wei Wang">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Unity插件之iOS和Android">
-  <meta name="twitter:description" content="// unity插件">
+  <meta name="twitter:title" content="Unity iOS 插件原理实现篇">
+  <meta name="twitter:description" content="概述">
 
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Unity插件之iOS和Android">
-  <meta property="og:description" content="// unity插件">
+  <meta property="og:title" content="Unity iOS 插件原理实现篇">
+  <meta property="og:description" content="概述">
 
   <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
   <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
@@ -51,7 +51,7 @@
         <span class="panel-cover__subtitle panel-subtitle">荣辱不惊，闲看庭前花开花落</span>
         
         <hr class="panel-cover__divider" />
-        <p class="panel-cover__description">嗨，我是唐顺治，(@shunzhitang) 一名90后iOS开发者，目前就职于一家创业公司，在iOS开发的路上寻求真知，继续前行！！！</p>
+        <p class="panel-cover__description">嗨，我是唐顺治，(@shunzhitang)  是一名客户端iOS开发者，目前暂居北京，从事一家广告公司！！！</p>
         <hr class="panel-cover__divider panel-cover__divider--secondary" />
         
         
@@ -136,15 +136,229 @@
     <div class="post-meta">
       <time datetime="2019-03-20 21:20:24 +0800" itemprop="datePublished" class="post-meta__date date">2019-03-20</time> &#8226; <span class="post-meta__tags tags">iOS项目疑难杂症集</span>
     </div>
-    <h1 class="post-title">Unity插件之iOS和Android</h1>
+    <h1 class="post-title">Unity iOS 插件原理实现篇</h1>
   </header>
 
   <section class="post">
-    <p>// unity插件</p>
+    <h3 id="section">概述</h3>
+
+<blockquote>
+  <p>Unity 作为当前最流行的游戏引擎，它具有非常强大的游戏功能。但当需要接入原生 iOS SDK或 原生 objective-c 交互时， Unity开发者难免会遇到 C 和 C# 交互的难题。本篇就介绍了 Unity 如何优雅得和 iOS进行交互。</p>
+</blockquote>
+
+<h3 id="section-1">常见场景</h3>
+
+<blockquote>
+  <ol>
+    <li>接入代理商的登录和支付功能，但代理商只提供  iOS 平台 SDK。</li>
+    <li>一些优秀的插件或工具只提供 iOS 平台 SDK。</li>
+    <li>一些游戏变现好的广告 SDK 只提供 iOS 平台 SDK。（比如 YumiMediationSDK）</li>
+    <li>需要通过 Objective-C 调用 iOS 原生类库代码。</li>
+  </ol>
+</blockquote>
+
+<h3 id="unity--ios-">Unity 调用 iOS 原生方法</h3>
+<blockquote>
+  <p>C#调用iOS的代码，实际上是C#提供了一种调用C（非C++）代码的机制，而在iOS环境中，C代码是可以与苹果的Objective-C代码进行混合编译的，这样，就实现了C#调用iOS代码的功能</p>
+</blockquote>
+
+<h4 id="il2cpp-">IL2CPP 简单介绍</h4>
+<blockquote>
+  <p>我们称之为IL2CPP的技术有两个不同的部分。</p>
+
+  <ul>
+    <li>提前（AOT）编译器</li>
+    <li>用于支持虚拟机的运行时库
+AOT编译器将中间语言（IL）（.NET编译器的低级输出）转换为C ++源代码。 运行时库提供服务和抽象，如垃圾收集器，对线程和文件的独立于平台的访问，以及内部调用的实现（直接修改托管数据结构的本机代码）。</li>
+  </ul>
+</blockquote>
+
+<p><img src="/image/ll2cpp.png" alt="ll2cpp示例" title="示例图" /></p>
+<blockquote>
+  <p>Unity 脚本(C#、JavaScript)编译成中间语言（IL，动态库等）
+利用IL2CPP程序，将IL转换成C++语言
+与之前不同，编译到 XCode 之后不再包含动态库(.dll)文件
+理论上讲，直接用C++编译运行机器码，要比 mono 运行环境代码快许多，不得不说 Unity 为了性能也是够拼了
+想要了解跟多，可以查看：http://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/</p>
+</blockquote>
+
+<h4 id="dllimport-">DllImport 机制</h4>
+<p>C#提供了DllImport机制，来实现C#和C语言的方法调用</p>
+
+<ol>
+  <li>
+    <p>无参无返回值</p>
+
+    <pre><code class="language-c#">[DllImport("__Internal")]
+internal static extern void CallFunction();
+</code></pre>
+  </li>
+  <li>
+    <p>有参无返回值</p>
+
+    <pre><code class="language-c#">[DllImport("__Internal")]
+internal static extern void SetGameVersion(string appVersion);
+</code></pre>
+  </li>
+  <li>
+    <p>有参有返回值</p>
+
+    <pre><code class="language-c#">[DllImport("__Internal")]
+internal static extern string GetGameName(string identify);
+</code></pre>
+  </li>
+</ol>
+
+<p><strong>DllImport 的语法规则如下所示</strong></p>
+<pre><code class="language-c#">[DllImport("__Internal")]
+internal static extern ReturnValue FunctionName(string parameter1, int parameter1);
+</code></pre>
+<p>由于是C语言，支持的参数及其数据类型是非常有限的，诸如int、float、double、char等这类两种语言中都存在的基础数据类型，是可以实现直接映射的，但是C#中的string对应到C中，就是char*了</p>
+
+<h4 id="ios--dllimport">iOS 实现 DllImport</h4>
+<h5 id="c">1. C语言环境下实现交互</h5>
+
+<ol>
+  <li>C# DllImport 声明</li>
+</ol>
+
+<pre><code class="language-c#">[DllImport ("__Internal")]
+private static extern string SomeFunction();
+</code></pre>
+
+<ol>
+  <li>iOS C语言环境实现
+在 .mm 的文件中
+    <pre><code class="language-c">extern 'C' {
+  char* SomeFunction() {
+   char* retString = (char*)malloc(4);
+   memset(retString, 0, 4);
+   strncpy(retString, "abc", 4);
+   return retString;
+  }
+}
+</code></pre>
+    <p><strong>因为当前方法的返回值是 string 类型，没有办法直接去返回需要转成char * 的格式返回，需要在 C 环境下给字符分配空间</strong></p>
+  </li>
+</ol>
+
+<h5 id="objective-c-">2. Objective-C 语言环境下实现交互</h5>
+<blockquote>
+  <p>原理
+利用指针地址原理，在C#和OC环境下指针地址一致，在不同的环境中都可以找到对应的指针地址从而找到对应的对象完成方法调用</p>
+</blockquote>
+
+<ol>
+  <li>C# DllImport 传入C#返回OC对象的声明
+    <pre><code class="language-c#">[DllImport("__Internal")]
+internal static extern IntPtr InitInstance(IntPtr unityObject); //IntPtr 返回值是一个OC对象
+</code></pre>
+  </li>
+  <li>iOS Objective-C语言环境实现
+在 .m的文件中实现
+```objective-c
+/// Type representing a Unity  client.
+typedef const void *InstanceClientRef;
+/// Type representing a instance.
+typedef const void *InstanceRef;</li>
+</ol>
+
+<p>InstanceRef InitInstance(InstanceClientRef *client)
+{
+    OCInstance *ocInstance = [[OCInstance alloc] init];
+    // 在这里需要把ocInstance 这个对象缓存起来，别让他释放 
+    return (__bridge InstanceRef)ocInstance;
+}</p>
+<pre><code>
+OCInstance 是一个objective-c对象，有.h 和.m 文件
+
+
+### iOS 调用 Unity 原生方法
+这种方式一般用于 iOS 给 unity 一些方法回调
+
+#### UnitySendMessage
+
+OC 调用 C#
+
+```C
+extern "C"{
+    extern void UnitySendMessage(const char *, const char *, const char *);
+}
+</code></pre>
+
+<p>使用：</p>
+
+<pre><code class="language-objective-c">UnitySendMessage("UnityManager","CallUnityFunction","");
+</code></pre>
+
+<p>C# 实现代码
+在 UnityManager 这个类中实现 ‘CallUnityFunction’ 这个方法 就可以调用成功了</p>
+
+<pre><code class="language-c#">public class UnityManager{
+    public void CallUnityFunction()
+    {
+        // Implement CallUnityFunction
+    }
+}
+
+</code></pre>
+<h4 id="monopinvokecallback">MonoPInvokeCallback</h4>
+<p>ObjCRuntime.MonoPInvokeCallbackAttribute Class</p>
+<blockquote>
+  <p>Attribute used to annotate functions that will be called back from the unmanaged world.
+MonoPInvokeCallback特性参数是定义的非托管delegate</p>
+</blockquote>
+
+<ol>
+  <li>C# 中定义 Delegate</li>
+</ol>
+
+<pre><code class="language-c#">public class ManagerClient : IManagerClient{
+    internal delegate void InstanceDidReceiveCallback(IntPtr instace);
+
+    [MonoPInvokeCallback(typeof(InstanceDidReceiveCallback))]
+    private static void MonoDidReceiveCallback(IntPtr instace)
+    {
+        // oc callback method
+    }
+}
+
+</code></pre>
+<p>在C#中定义好MonoPInvokeCallback修饰的方法 需要传入OC原生方法中</p>
+
+<pre><code class="language-c#">[DllImport("__Internal")]
+internal static extern void SetCallbacks(
+    IntPtr ocInstace,
+    ManagerClient.MonoDidReceiveCallback receivedCallback);
+</code></pre>
+
+<ol>
+  <li>Objective-C 实现MonoPInvokeCallback</li>
+</ol>
+
+<p>利用delegate的性质，把C# 传入的MonoDidReceiveCallback 方法直接赋值到OC的方式属性中</p>
+
+<p>.m 中的方法</p>
+
+<pre><code class="language-objective-c">typedef void (*MonoDidReceiveCallback)(InstanceClientRef *instanceClient);
+
+void SetCallbacks(InstanceRef ocInstance,MonoDidReceiveCallback receivedCallback,){
+  OCInstance *ocInstance = (__bridge OCInstance *)ocInstance;
+  ocInstance.receivedCallback = receivedCallback;
+}
+</code></pre>
+<p>在 OCInstance 类中直接调用以下方法就可以在unity MonoPInvokeCallback 修饰的方法得到消息了</p>
+<pre><code class="language-objective-c">if (self.receivedCallback) {
+    self.receivedCallback(self.unityClient);
+}
+</code></pre>
+
+<p>上述这些 Unity 和 iOS 相互传递消息的原理和实现是我在实现Unity插件用到的，希望对你有帮助 ^_^</p>
 
 <hr />
-<p>参考资料：<br /></p>
-
+<p>参考资料：<br />
+<a href="https://blogs.unity3d.com/2015/05/06/an-introduction-to-ilcpp-internals/">An introduction to IL2CPP internals</a><br />
+<a href="https://github.com/yumimobi/YumiMediationSDK-Unity/tree/master/Assets/YumiMediationSDK/Platforms/iOS">YumiMediationSDK-Unity 插件</a></p>
 
   </section>
 </article>
@@ -194,7 +408,7 @@
             <section class="footer">
     <footer>
     	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
-        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2019-03-27 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
+        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2019-03-28 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
         <span class="footer__copyright">本站由 <a href="https://github.com/ShunzhiTang">@tangfeng</a> 创建，采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题，您可以在 GitHub 找到<a href="https://github.com/onevcat/OneV-s-Den">本站源码</a> - &copy; 2019</span>
     </footer>
 </section>
